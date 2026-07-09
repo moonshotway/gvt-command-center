@@ -1,6 +1,7 @@
 /* ===================== CONFIG ===================== */
 const SPRINT_START = '2026-06-08'; // Day 1, local calendar date
 const STORAGE_KEY = 'gvt_command_center_v1';
+const DATA_VERSION = 1; // increment each time we add a migration below
 
 /* ===================== DATE HELPERS =====================
    Parsing "YYYY-MM-DD" with `new Date(str)` reads it as UTC midnight,
@@ -134,7 +135,10 @@ const SEED_DELIVERABLES = [
   { text: 'Coffee Can Wait Women\'s Tee decision', done: false },
   { text: 'TikTok Shop application (Month 2)', done: false },
   { text: 'GVT Instagram (@goodvibes_tee) comeback post', done: false },
-  { text: 'Zoho email alias setup (mail@goodvibestee.com)', done: false }
+  { text: 'Zoho email alias setup (mail@goodvibestee.com)', done: false },
+  { text: 'Border Collie Breed Study Unisex Tee — designed, published to Shopify', done: true },
+  { text: 'Popup A/B test live: Early Access vs. 15% Discount', done: true },
+  { text: '@goodvibes_tee Border Collie post published', done: true }
 ];
 
 const SEED_PRODUCTS = [
@@ -153,7 +157,8 @@ const SEED_PRODUCTS = [
   { name: 'My Dog Is The Best Breed Unisex Tee', price: '29.99', status: 'live' },
   { name: 'Freedom. Found On Four Paws. Unisex Tee', price: '29.99', status: 'live' },
   { name: 'Dog Person Definition Women\'s Tee', price: '31.99', status: 'live' },
-  { name: 'Home Collection — Paw & Hand Women\'s Tee', price: '31.99', status: 'live' }
+  { name: 'Home Collection — Paw & Hand Women\'s Tee', price: '31.99', status: 'live' },
+  { name: 'Border Collie Breed Study Unisex Tee', price: '', status: 'live' }
 ];
 
 const SEED_DECISIONS = [
@@ -167,14 +172,19 @@ const SEED_DECISIONS = [
   { date: '2026-06-29', text: 'Free shipping bug fixed — Printify shipping profile required manual product assignment, not automatic' },
   { date: '2026-06-29', text: 'Klaviyo selected for email over Mailchimp (no native Shopify integration) and Privy (low familiarity) — chosen for Shopify integration depth' },
   { date: '2026-06-29', text: 'Ifscarlet_KA intro reel posted — first major external touchpoint, 34 visitors within hours of posting' },
-  { date: '2026-06-30', text: 'Command Center rebuild moved from chat-interface artifacts to Claude Code for proper dev environment' }
+  { date: '2026-06-30', text: 'Command Center rebuild moved from chat-interface artifacts to Claude Code for proper dev environment' },
+  { date: '2026-07-07', text: 'New series launched: Breed Study — fine-art single-color breed portraits, pivoting from font/icon series. Breed order: mixed, no strict audience-priority sequencing.' },
+  { date: '2026-07-07', text: 'Popup offer A/B test launched — testing whether no-coupon positioning was suppressing signups (0 organic signups / 80 views prior to test).' },
+  { date: '2026-07-07', text: '@goodvibes_tee IG activity tracked as individual deliverable entries, not a structured counter, to keep CC maintenance light.' }
 ];
 
 // Hours: stored as one entry per calendar date (object keyed by date string).
-// A backfill entry covers Day 1-22 prior history since exact daily figures
-// weren't tracked from the start. Totals = sum of every entry's hours, period.
 const SEED_HOURS = {
-  '2026-06-29-backfill': { date: '2026-06-29', label: 'Backfill (Day 1–22 prior hours)', gvt: 43, ai: 9 }
+  '2026-06-29-backfill': { date: '2026-06-29', label: 'Backfill (Day 1–22 prior hours)', gvt: 43, ai: 9 },
+  '2026-06-28': { date: '2026-06-28', label: 'Backfill — week of Jun 22-28', gvt: 40, ai: 0 },
+  '2026-07-05': { date: '2026-07-05', label: 'Backfill — week of Jun 29-Jul 5', gvt: 20, ai: 0 },
+  '2026-07-06': { date: '2026-07-06', gvt: 5, ai: 0 },
+  '2026-07-07': { date: '2026-07-07', gvt: 4, ai: 0 }
 };
 
 const DECISION_RULES = [
@@ -205,15 +215,58 @@ function buildSeedState() {
   };
 }
 
+/* ===================== MIGRATIONS =====================
+   Each migration runs exactly once on existing data by comparing
+   state.dataVersion to DATA_VERSION. New installs get everything
+   via buildSeedState() so migrations only target returning visitors. */
+function applyMigrations(s) {
+  const v = s.dataVersion || 0;
+  if (v >= DATA_VERSION) return s;
+
+  if (v < 1) {
+    // v1: Jul 7 2026 updates — new deliverables, product, decisions, hours
+    const newDeliverables = [
+      { text: 'Border Collie Breed Study Unisex Tee — designed, published to Shopify', done: true },
+      { text: 'Popup A/B test live: Early Access vs. 15% Discount', done: true },
+      { text: '@goodvibes_tee Border Collie post published', done: true }
+    ];
+    newDeliverables.forEach(d => s.deliverables.push({ id: uid('d'), ...d }));
+
+    s.products.push({ id: uid('p'), name: 'Border Collie Breed Study Unisex Tee', price: '', status: 'live' });
+
+    const newDecisions = [
+      { date: '2026-07-07', text: 'New series launched: Breed Study — fine-art single-color breed portraits, pivoting from font/icon series. Breed order: mixed, no strict audience-priority sequencing.' },
+      { date: '2026-07-07', text: 'Popup offer A/B test launched — testing whether no-coupon positioning was suppressing signups (0 organic signups / 80 views prior to test).' },
+      { date: '2026-07-07', text: '@goodvibes_tee IG activity tracked as individual deliverable entries, not a structured counter, to keep CC maintenance light.' }
+    ];
+    newDecisions.forEach(d => s.decisions.push({ id: uid('k'), ...d }));
+
+    // Hours entries — keyed by date so editing the same date later won't duplicate
+    s.hours['2026-06-28'] = { date: '2026-06-28', label: 'Backfill — week of Jun 22-28', gvt: 40, ai: 0 };
+    s.hours['2026-07-05'] = { date: '2026-07-05', label: 'Backfill — week of Jun 29-Jul 5', gvt: 20, ai: 0 };
+    s.hours['2026-07-06'] = { date: '2026-07-06', gvt: 5, ai: 0 };
+    s.hours['2026-07-07'] = { date: '2026-07-07', gvt: 4, ai: 0 };
+  }
+
+  s.dataVersion = DATA_VERSION;
+  return s;
+}
+
 /* ===================== STATE / PERSISTENCE ===================== */
 let state = loadState();
 
 function loadState() {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (raw) {
-    try { return JSON.parse(raw); } catch (e) { /* fall through to reseed */ }
+    try {
+      const parsed = JSON.parse(raw);
+      const migrated = applyMigrations(parsed);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+      return migrated;
+    } catch (e) { /* fall through to reseed */ }
   }
   const seeded = buildSeedState();
+  seeded.dataVersion = DATA_VERSION;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
   return seeded;
 }
