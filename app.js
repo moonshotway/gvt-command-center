@@ -1,7 +1,7 @@
 /* ===================== CONFIG ===================== */
 const SPRINT_START = '2026-06-08'; // Day 1, local calendar date
 const STORAGE_KEY = 'gvt_command_center_v1';
-const DATA_VERSION = 1; // increment each time we add a migration below
+const DATA_VERSION = 2; // increment each time we add a migration below
 
 /* ===================== DATE HELPERS =====================
    Parsing "YYYY-MM-DD" with `new Date(str)` reads it as UTC midnight,
@@ -138,7 +138,8 @@ const SEED_DELIVERABLES = [
   { text: 'Zoho email alias setup (mail@goodvibestee.com)', done: false },
   { text: 'Border Collie Breed Study Unisex Tee — designed, published to Shopify', done: true },
   { text: 'Popup A/B test live: Early Access vs. 15% Discount', done: true },
-  { text: '@goodvibes_tee Border Collie post published', done: true }
+  { text: '@goodvibes_tee Border Collie post published', done: true },
+  { text: 'Full sprint review conducted — Day 33', done: true }
 ];
 
 const SEED_PRODUCTS = [
@@ -175,7 +176,9 @@ const SEED_DECISIONS = [
   { date: '2026-06-30', text: 'Command Center rebuild moved from chat-interface artifacts to Claude Code for proper dev environment' },
   { date: '2026-07-07', text: 'New series launched: Breed Study — fine-art single-color breed portraits, pivoting from font/icon series. Breed order: mixed, no strict audience-priority sequencing.' },
   { date: '2026-07-07', text: 'Popup offer A/B test launched — testing whether no-coupon positioning was suppressing signups (0 organic signups / 80 views prior to test).' },
-  { date: '2026-07-07', text: '@goodvibes_tee IG activity tracked as individual deliverable entries, not a structured counter, to keep CC maintenance light.' }
+  { date: '2026-07-07', text: '@goodvibes_tee IG activity tracked as individual deliverable entries, not a structured counter, to keep CC maintenance light.' },
+  { date: '2026-07-10', text: 'Sprint review conducted Day 33 (Jul 10, Week 5). Month 1 revenue target ($2,500-$4,000 cumulative) missed — actual revenue $0. Root causes identified: Ifscarlet_KA warm audience under-utilized (1 touch in 5 weeks vs. planned Wed/Sat cadence), Command Center/infrastructure work consumed disproportionate time relative to direct GVT revenue impact, Etsy and TikTok Shop channels not launched as planned. Catalog build (22 products, 3 series) and brand identity execution assessed as strong; sales channel activation assessed as the clear gap.' },
+  { date: '2026-07-10', text: 'Week 6 objective locked: break the zero-sales streak by end of week (target Jul 17). Action plan: (1) Ifscarlet_KA minimum 3 posts/week resumed as top priority, (2) no further CC/tooling work unless something breaks, (3) monitor popup A/B test mid-week, act on winning variant, (4) @goodvibes_tee keep/abandon decision moved up to ~Jul 17 (from original 3-week window) given weak signal so far.' }
 ];
 
 // Hours: stored as one entry per calendar date (object keyed by date string).
@@ -246,6 +249,17 @@ function applyMigrations(s) {
     s.hours['2026-07-05'] = { date: '2026-07-05', label: 'Backfill — week of Jun 29-Jul 5', gvt: 20, ai: 0 };
     s.hours['2026-07-06'] = { date: '2026-07-06', gvt: 5, ai: 0 };
     s.hours['2026-07-07'] = { date: '2026-07-07', gvt: 4, ai: 0 };
+  }
+
+  if (v < 2) {
+    // v2: Jul 10 sprint review — Day 33 decisions and deliverable
+    const newDecisions = [
+      { date: '2026-07-10', text: 'Sprint review conducted Day 33 (Jul 10, Week 5). Month 1 revenue target ($2,500-$4,000 cumulative) missed — actual revenue $0. Root causes identified: Ifscarlet_KA warm audience under-utilized (1 touch in 5 weeks vs. planned Wed/Sat cadence), Command Center/infrastructure work consumed disproportionate time relative to direct GVT revenue impact, Etsy and TikTok Shop channels not launched as planned. Catalog build (22 products, 3 series) and brand identity execution assessed as strong; sales channel activation assessed as the clear gap.' },
+      { date: '2026-07-10', text: 'Week 6 objective locked: break the zero-sales streak by end of week (target Jul 17). Action plan: (1) Ifscarlet_KA minimum 3 posts/week resumed as top priority, (2) no further CC/tooling work unless something breaks, (3) monitor popup A/B test mid-week, act on winning variant, (4) @goodvibes_tee keep/abandon decision moved up to ~Jul 17 (from original 3-week window) given weak signal so far.' }
+    ];
+    newDecisions.forEach(d => s.decisions.push({ id: uid('k'), ...d }));
+
+    s.deliverables.push({ id: uid('d'), text: 'Full sprint review conducted — Day 33', done: true });
   }
 
   s.dataVersion = DATA_VERSION;
