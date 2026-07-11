@@ -16,7 +16,7 @@
     <h1>Good Vibes Tee</h1>
     <p class="subbrand">GVT Command Center</p>
   </div>
-  <div class="day-counter" id="dayCounter">
+  <div class="day-counter">
     <span class="day-number" id="dayNumber">--</span>
     <span class="day-label">of 90-Day Sprint</span>
     <span class="day-date" id="dayDate"></span>
@@ -27,6 +27,14 @@
 
   <!-- STATS ROW -->
   <section class="stats-row">
+    <div class="stat-card current-phase-card">
+      <p class="stat-label">Current Phase</p>
+      <span class="stat-value phase-value" id="currentPhase">--</span>
+    </div>
+    <div class="stat-card">
+      <p class="stat-label">Plan Progress</p>
+      <span class="stat-value" id="deliverablesPct">0%</span>
+    </div>
     <div class="stat-card">
       <p class="stat-label">Current Streak</p>
       <div class="stat-editable" id="streakWrap">
@@ -36,21 +44,46 @@
       </div>
     </div>
     <div class="stat-card">
-      <p class="stat-label">GVT Hours to Date</p>
+      <p class="stat-label">GVT Hours</p>
       <span class="stat-value" id="totalGvtHours">0</span>
     </div>
     <div class="stat-card">
-      <p class="stat-label">AI Hours to Date</p>
+      <p class="stat-label">AI Hours</p>
       <span class="stat-value" id="totalAiHours">0</span>
     </div>
     <div class="stat-card">
       <p class="stat-label">Products Live</p>
       <span class="stat-value" id="productCount">0</span>
     </div>
-    <div class="stat-card">
-      <p class="stat-label">Deliverables Complete</p>
-      <span class="stat-value" id="deliverablesPct">0%</span>
-    </div>
+  </section>
+
+  <!-- PLAN DELIVERABLES -->
+  <section class="panel">
+    <h2>Plan Deliverables</h2>
+    <p class="panel-sub">The original 90-day plan, organized by phase. Check items off as they're completed. Overall Plan Progress % in the header is calculated from these items only.</p>
+    <div id="planPhaseList"></div>
+  </section>
+
+  <!-- ADDITIONAL DELIVERABLES -->
+  <section class="panel">
+    <h2>Additional Deliverables</h2>
+    <p class="panel-sub">Extra work completed beyond the original plan. These do not affect Plan Progress % unless tagged to a specific phase.</p>
+    <form id="deliverableForm" class="inline-form">
+      <label class="grow">New item <input type="text" id="deliverableText" placeholder="e.g. Klaviyo welcome flow" required></label>
+      <label>Phase tag
+        <select id="deliverablePhaseTag">
+          <option value="unplanned">Unplanned</option>
+          <option value="w1">Week 1</option>
+          <option value="w2">Week 2</option>
+          <option value="w3">Week 3</option>
+          <option value="w4">Week 4</option>
+          <option value="m2">Month 2</option>
+          <option value="m3">Month 3</option>
+        </select>
+      </label>
+      <button type="submit" class="btn-primary">Add</button>
+    </form>
+    <ul class="deliverable-list" id="deliverableList"></ul>
   </section>
 
   <!-- HOURS TRACKING -->
@@ -69,17 +102,6 @@
         <tbody id="hoursTableBody"></tbody>
       </table>
     </div>
-  </section>
-
-  <!-- DELIVERABLES TRACKER -->
-  <section class="panel">
-    <h2>Deliverables Tracker</h2>
-    <p class="panel-sub">Add, complete, edit, or delete tasks. Completion % updates automatically.</p>
-    <form id="deliverableForm" class="inline-form">
-      <label class="grow">New deliverable <input type="text" id="deliverableText" placeholder="e.g. Klaviyo welcome flow" required></label>
-      <button type="submit" class="btn-primary">Add</button>
-    </form>
-    <ul class="deliverable-list" id="deliverableList"></ul>
   </section>
 
   <!-- PLAN VS ACTUAL -->
