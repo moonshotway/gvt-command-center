@@ -1,7 +1,7 @@
 /* ===================== CONFIG ===================== */
 const SPRINT_START = '2026-06-08';
 const STORAGE_KEY = 'gvt_command_center_v1';
-const DATA_VERSION = 3;
+const DATA_VERSION = 4;
 
 /* ===================== DATE HELPERS ===================== */
 function parseLocalDate(str) {
@@ -159,7 +159,13 @@ const SEED_ADDITIONAL = [
   { text: 'Popup A/B test live: Early Access vs. 15% Discount', done: true, phaseTag: 'unplanned' },
   { text: '@goodvibes_tee Border Collie post published', done: true, phaseTag: 'unplanned' },
   { text: 'Full sprint review conducted — Day 33', done: true, phaseTag: 'unplanned' },
-  { text: 'GVT Command Center built and deployed to Netlify', done: true, phaseTag: 'unplanned' }
+  { text: 'GVT Command Center built and deployed to Netlify', done: true, phaseTag: 'unplanned' },
+  { text: 'Golden Retriever Breed Study Women\'s Tee — published to Shopify', done: true, phaseTag: 'unplanned' },
+  { text: 'Walk Ready #2 Women\'s Tee — published to Shopify', done: true, phaseTag: 'unplanned' },
+  { text: 'Corgi Breed Study Women\'s Tee — published to Shopify, IG reel + caption prepared', done: true, phaseTag: 'unplanned' },
+  { text: '@goodvibes_tee Golden Retriever reel published', done: true, phaseTag: 'unplanned' },
+  { text: 'Golden Retriever reel posted to Ifscarlet_KA', done: true, phaseTag: 'unplanned' },
+  { text: 'Ifscarlet_KA 3x/week cadence maintained since Jul 10', done: true, phaseTag: 'unplanned' }
 ];
 
 const SEED_PRODUCTS = [
@@ -184,7 +190,10 @@ const SEED_PRODUCTS = [
   { name: 'Product 19', price: '', status: 'live' },
   { name: 'Product 20', price: '', status: 'live' },
   { name: 'Product 21', price: '', status: 'live' },
-  { name: 'Product 22', price: '', status: 'live' }
+  { name: 'Product 22', price: '', status: 'live' },
+  { name: 'Golden Retriever Breed Study Women\'s Tee', price: '', status: 'live' },
+  { name: 'Walk Ready #2 Women\'s Tee', price: '', status: 'live' },
+  { name: 'Corgi Breed Study Women\'s Tee', price: '', status: 'live' }
 ];
 
 const SEED_DECISIONS = [
@@ -203,7 +212,10 @@ const SEED_DECISIONS = [
   { date: '2026-07-07', text: 'Popup offer A/B test launched — testing whether no-coupon positioning was suppressing signups (0 organic signups / 80 views prior to test).' },
   { date: '2026-07-07', text: '@goodvibes_tee IG activity tracked as individual deliverable entries, not a structured counter, to keep CC maintenance light.' },
   { date: '2026-07-10', text: 'Sprint review conducted Day 33 (Jul 10, Week 5). Month 1 revenue target ($2,500-$4,000 cumulative) missed — actual revenue $0. Root causes identified: Ifscarlet_KA warm audience under-utilized (1 touch in 5 weeks vs. planned Wed/Sat cadence), Command Center/infrastructure work consumed disproportionate time relative to direct GVT revenue impact, Etsy and TikTok Shop channels not launched as planned. Catalog build (22 products, 3 series) and brand identity execution assessed as strong; sales channel activation assessed as the clear gap.' },
-  { date: '2026-07-10', text: 'Week 6 objective locked: break the zero-sales streak by end of week (target Jul 17). Action plan: (1) Ifscarlet_KA minimum 3 posts/week resumed as top priority, (2) no further CC/tooling work unless something breaks, (3) monitor popup A/B test mid-week, act on winning variant, (4) @goodvibes_tee keep/abandon decision moved up to ~Jul 17 (from original 3-week window) given weak signal so far.' }
+  { date: '2026-07-10', text: 'Week 6 objective locked: break the zero-sales streak by end of week (target Jul 17). Action plan: (1) Ifscarlet_KA minimum 3 posts/week resumed as top priority, (2) no further CC/tooling work unless something breaks, (3) monitor popup A/B test mid-week, act on winning variant, (4) @goodvibes_tee keep/abandon decision moved up to ~Jul 17 (from original 3-week window) given weak signal so far.' },
+  { date: '2026-07-13', text: 'Golden Retriever reel (couch/coffee scene) underperformed on both accounts: 20 views/dead on @goodvibes_tee (60/40 follower split vs normal 80%+ non-follower), ~half normal reach on Ifscarlet_KA. Account status clean, no copyright flag. Root cause assessed as content style — static, symmetric, direct-gaze, overly polished AI shot reads as ad/staged and gets scrolled past, vs. motion/candid shots (walking, mid-action) which perform well on both accounts. Fix: favor motion and imperfection over posed symmetry going forward.' },
+  { date: '2026-07-13', text: 'Popup A/B test, ~1 week in: zero signups both variants (Early Access vs 15% Discount). Continuing to monitor.' },
+  { date: '2026-07-13', text: '@goodvibes_tee decision: 2 more posts (motion/candid style) as final test. Pass = any real engagement (non-self/friend like or comment, or Shopify IG referral click). Fail on both = abandon and restart fresh, decide reused vs new handle separately.' }
 ];
 
 const SEED_HOURS = {
@@ -211,7 +223,10 @@ const SEED_HOURS = {
   '2026-06-28': { date: '2026-06-28', label: 'Backfill — week of Jun 22-28', gvt: 40, ai: 0 },
   '2026-07-05': { date: '2026-07-05', label: 'Backfill — week of Jun 29-Jul 5', gvt: 20, ai: 0 },
   '2026-07-06': { date: '2026-07-06', gvt: 5, ai: 0 },
-  '2026-07-07': { date: '2026-07-07', gvt: 4, ai: 0 }
+  '2026-07-07': { date: '2026-07-07', gvt: 4, ai: 0 },
+  '2026-07-11': { date: '2026-07-11', gvt: 3, ai: 0 },
+  '2026-07-12': { date: '2026-07-12', gvt: 3, ai: 0 },
+  '2026-07-13': { date: '2026-07-13', gvt: 3, ai: 0 }
 };
 
 /* ===================== PLAN ITEMS HELPERS ===================== */
@@ -312,6 +327,34 @@ function applyMigrations(s) {
     delete s.deliverables;
     // Initialize planItems from PLAN_PHASES defaults
     s.planItems = buildDefaultPlanItems();
+  }
+
+  if (v < 4) {
+    // v4: Jul 11-13 updates — new products, deliverables, hours, decisions
+    [
+      { name: 'Golden Retriever Breed Study Women\'s Tee', price: '', status: 'live' },
+      { name: 'Walk Ready #2 Women\'s Tee', price: '', status: 'live' },
+      { name: 'Corgi Breed Study Women\'s Tee', price: '', status: 'live' }
+    ].forEach(p => s.products.push({ id: uid('p'), ...p }));
+
+    [
+      { text: 'Golden Retriever Breed Study Women\'s Tee — published to Shopify', done: true, phaseTag: 'unplanned' },
+      { text: 'Walk Ready #2 Women\'s Tee — published to Shopify', done: true, phaseTag: 'unplanned' },
+      { text: 'Corgi Breed Study Women\'s Tee — published to Shopify, IG reel + caption prepared', done: true, phaseTag: 'unplanned' },
+      { text: '@goodvibes_tee Golden Retriever reel published', done: true, phaseTag: 'unplanned' },
+      { text: 'Golden Retriever reel posted to Ifscarlet_KA', done: true, phaseTag: 'unplanned' },
+      { text: 'Ifscarlet_KA 3x/week cadence maintained since Jul 10', done: true, phaseTag: 'unplanned' }
+    ].forEach(d => s.additionalDeliverables.push({ id: uid('d'), ...d }));
+
+    s.hours['2026-07-11'] = { date: '2026-07-11', gvt: 3, ai: 0 };
+    s.hours['2026-07-12'] = { date: '2026-07-12', gvt: 3, ai: 0 };
+    s.hours['2026-07-13'] = { date: '2026-07-13', gvt: 3, ai: 0 };
+
+    [
+      { date: '2026-07-13', text: 'Golden Retriever reel (couch/coffee scene) underperformed on both accounts: 20 views/dead on @goodvibes_tee (60/40 follower split vs normal 80%+ non-follower), ~half normal reach on Ifscarlet_KA. Account status clean, no copyright flag. Root cause assessed as content style — static, symmetric, direct-gaze, overly polished AI shot reads as ad/staged and gets scrolled past, vs. motion/candid shots (walking, mid-action) which perform well on both accounts. Fix: favor motion and imperfection over posed symmetry going forward.' },
+      { date: '2026-07-13', text: 'Popup A/B test, ~1 week in: zero signups both variants (Early Access vs 15% Discount). Continuing to monitor.' },
+      { date: '2026-07-13', text: '@goodvibes_tee decision: 2 more posts (motion/candid style) as final test. Pass = any real engagement (non-self/friend like or comment, or Shopify IG referral click). Fail on both = abandon and restart fresh, decide reused vs new handle separately.' }
+    ].forEach(d => s.decisions.push({ id: uid('k'), ...d }));
   }
 
   s.dataVersion = DATA_VERSION;
