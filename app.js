@@ -1,7 +1,7 @@
 /* ===================== CONFIG ===================== */
 const SPRINT_START = '2026-06-08';
 const STORAGE_KEY = 'gvt_command_center_v1';
-const DATA_VERSION = 4;
+const DATA_VERSION = 5;
 
 /* ===================== DATE HELPERS ===================== */
 function parseLocalDate(str) {
@@ -165,7 +165,9 @@ const SEED_ADDITIONAL = [
   { text: 'Corgi Breed Study Women\'s Tee — published to Shopify, IG reel + caption prepared', done: true, phaseTag: 'unplanned' },
   { text: '@goodvibes_tee Golden Retriever reel published', done: true, phaseTag: 'unplanned' },
   { text: 'Golden Retriever reel posted to Ifscarlet_KA', done: true, phaseTag: 'unplanned' },
-  { text: 'Ifscarlet_KA 3x/week cadence maintained since Jul 10', done: true, phaseTag: 'unplanned' }
+  { text: 'Ifscarlet_KA 3x/week cadence maintained since Jul 10', done: true, phaseTag: 'unplanned' },
+  { text: '"Borrowed." Confessions Series — product + copy finalized, published to Shopify', done: true, phaseTag: 'unplanned' },
+  { text: '"I Can Explain." Confessions Series — product + copy finalized, published to Shopify', done: true, phaseTag: 'unplanned' }
 ];
 
 const SEED_PRODUCTS = [
@@ -215,7 +217,11 @@ const SEED_DECISIONS = [
   { date: '2026-07-10', text: 'Week 6 objective locked: break the zero-sales streak by end of week (target Jul 17). Action plan: (1) Ifscarlet_KA minimum 3 posts/week resumed as top priority, (2) no further CC/tooling work unless something breaks, (3) monitor popup A/B test mid-week, act on winning variant, (4) @goodvibes_tee keep/abandon decision moved up to ~Jul 17 (from original 3-week window) given weak signal so far.' },
   { date: '2026-07-13', text: 'Golden Retriever reel (couch/coffee scene) underperformed on both accounts: 20 views/dead on @goodvibes_tee (60/40 follower split vs normal 80%+ non-follower), ~half normal reach on Ifscarlet_KA. Account status clean, no copyright flag. Root cause assessed as content style — static, symmetric, direct-gaze, overly polished AI shot reads as ad/staged and gets scrolled past, vs. motion/candid shots (walking, mid-action) which perform well on both accounts. Fix: favor motion and imperfection over posed symmetry going forward.' },
   { date: '2026-07-13', text: 'Popup A/B test, ~1 week in: zero signups both variants (Early Access vs 15% Discount). Continuing to monitor.' },
-  { date: '2026-07-13', text: '@goodvibes_tee decision: 2 more posts (motion/candid style) as final test. Pass = any real engagement (non-self/friend like or comment, or Shopify IG referral click). Fail on both = abandon and restart fresh, decide reused vs new handle separately.' }
+  { date: '2026-07-13', text: '@goodvibes_tee decision: 2 more posts (motion/candid style) as final test. Pass = any real engagement (non-self/friend like or comment, or Shopify IG referral click). Fail on both = abandon and restart fresh, decide reused vs new handle separately.' },
+  { date: '2026-07-19', text: '@goodvibes_tee "I Can Explain" colorway carousel reel: 132 views in 20 min vs. 22 views over 4 days on prior post — real signal. Likely mix of: motion/candid format, strong hook overlay gag ("still not sorry"), and/or early algorithmic velocity. Still needs confirmed real engagement (likes/comments/shares/saves or Shopify IG-referral click) before counting toward keep/abandon pass criteria.' },
+  { date: '2026-07-19', text: 'Design QA rule locked: vary AI lifestyle model dog breed away from tan/curly-coated breeds (cavapoo/goldendoodle) in future lifestyle image gens. Reason: visual overlap between model dog and illustrated print dog reads as "portrait of the shirt" rather than universal design — undermines the broad-appeal positioning.' },
+  { date: '2026-07-19', text: 'Printify: Global Fulfillment Eligible toggle = OFF for GVT. US-only marketing scope makes global fulfillment irrelevant; toggle was unnecessarily restricting color variant selection.' },
+  { date: '2026-07-19', text: 'Meta ad competitive landscape assessed: majority of dog-apparel POD ads are low-quality/brand-new accounts running generic clipart designs with urgency tactics (free shipping badges, 15% off stickers). Pattern assessed as unprofitable ad churn (weak unit economics for cold traffic + discounting, no LTV infrastructure). GVT decision: do not imitate. GVT\'s actual edge is design quality, brand voice, and warm audience — competing on ad spend volume alone is a losing game for GVT.' }
 ];
 
 const SEED_HOURS = {
@@ -354,6 +360,21 @@ function applyMigrations(s) {
       { date: '2026-07-13', text: 'Golden Retriever reel (couch/coffee scene) underperformed on both accounts: 20 views/dead on @goodvibes_tee (60/40 follower split vs normal 80%+ non-follower), ~half normal reach on Ifscarlet_KA. Account status clean, no copyright flag. Root cause assessed as content style — static, symmetric, direct-gaze, overly polished AI shot reads as ad/staged and gets scrolled past, vs. motion/candid shots (walking, mid-action) which perform well on both accounts. Fix: favor motion and imperfection over posed symmetry going forward.' },
       { date: '2026-07-13', text: 'Popup A/B test, ~1 week in: zero signups both variants (Early Access vs 15% Discount). Continuing to monitor.' },
       { date: '2026-07-13', text: '@goodvibes_tee decision: 2 more posts (motion/candid style) as final test. Pass = any real engagement (non-self/friend like or comment, or Shopify IG referral click). Fail on both = abandon and restart fresh, decide reused vs new handle separately.' }
+    ].forEach(d => s.decisions.push({ id: uid('k'), ...d }));
+  }
+
+  if (v < 5) {
+    // v5: Jul 19 session — Confessions Series, content/design/market decisions
+    [
+      { text: '"Borrowed." Confessions Series — product + copy finalized, published to Shopify', done: true, phaseTag: 'unplanned' },
+      { text: '"I Can Explain." Confessions Series — product + copy finalized, published to Shopify', done: true, phaseTag: 'unplanned' }
+    ].forEach(d => s.additionalDeliverables.push({ id: uid('d'), ...d }));
+
+    [
+      { date: '2026-07-19', text: '@goodvibes_tee "I Can Explain" colorway carousel reel: 132 views in 20 min vs. 22 views over 4 days on prior post — real signal. Likely mix of: motion/candid format, strong hook overlay gag ("still not sorry"), and/or early algorithmic velocity. Still needs confirmed real engagement (likes/comments/shares/saves or Shopify IG-referral click) before counting toward keep/abandon pass criteria.' },
+      { date: '2026-07-19', text: 'Design QA rule locked: vary AI lifestyle model dog breed away from tan/curly-coated breeds (cavapoo/goldendoodle) in future lifestyle image gens. Reason: visual overlap between model dog and illustrated print dog reads as "portrait of the shirt" rather than universal design — undermines the broad-appeal positioning.' },
+      { date: '2026-07-19', text: 'Printify: Global Fulfillment Eligible toggle = OFF for GVT. US-only marketing scope makes global fulfillment irrelevant; toggle was unnecessarily restricting color variant selection.' },
+      { date: '2026-07-19', text: 'Meta ad competitive landscape assessed: majority of dog-apparel POD ads are low-quality/brand-new accounts running generic clipart designs with urgency tactics (free shipping badges, 15% off stickers). Pattern assessed as unprofitable ad churn (weak unit economics for cold traffic + discounting, no LTV infrastructure). GVT decision: do not imitate. GVT\'s actual edge is design quality, brand voice, and warm audience — competing on ad spend volume alone is a losing game for GVT.' }
     ].forEach(d => s.decisions.push({ id: uid('k'), ...d }));
   }
 
