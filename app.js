@@ -1,9 +1,19 @@
-/* ===================== CONFIG ===================== */
-const SPRINT_START = '2026-06-08';
-const STORAGE_KEY = 'gvt_command_center_v1';
-const DATA_VERSION = 5;
+/* =====================================================================
+   GVT Command Center v2 — Day 47–90 operating dashboard
+   Data model: single JSON state object. Baseline ships in data.json;
+   live state persists to localStorage and (when configured) syncs to a
+   Netlify Blobs store via /api/state. No seed/migration dual-write:
+   data.json is only read on first boot or explicit import.
+   ===================================================================== */
 
-/* ===================== DATE HELPERS ===================== */
+const SPRINT_START = '2026-06-08';
+const LS_KEY = 'gvt_cc_v2';
+const LS_LEGACY_KEY = 'gvt_command_center_v1'; // read-only; never deleted
+const LS_SYNC_KEY = 'gvt_cc_sync_key';
+
+/* ===================== DATE HELPERS =====================
+   Always build dates from local Y/M/D parts — parsing "YYYY-MM-DD" with
+   new Date(str) reads UTC midnight and can shift the day in some zones. */
 function parseLocalDate(str) {
   const [y, m, d] = str.split('-').map(Number);
   return new Date(y, m - 1, d);
@@ -19,722 +29,396 @@ function formatLocalDate(date) {
   return `${y}-${m}-${d}`;
 }
 function getSprintDay() {
-  const start = parseLocalDate(SPRINT_START);
-  const today = todayLocal();
-  return Math.round((today - start) / 86400000) + 1;
+  return Math.round((todayLocal() - parseLocalDate(SPRINT_START)) / 86400000) + 1;
 }
-
-/* ===================== PLAN PHASES (source of truth for plan deliverables) ===================== */
-const PLAN_PHASES = [
-  {
-    id: 'w1', label: 'Week 1', theme: 'Foundation',
-    items: [
-      { text: 'Shopify store rebuilt with new brand identity', defaultDone: true },
-      { text: 'Brand palette/typography locked', defaultDone: true },
-      { text: '12–15 initial designs created', defaultDone: true },
-      { text: 'Samples ordered from Printify', defaultDone: true }
-    ]
-  },
-  {
-    id: 'w2', label: 'Week 2', theme: 'Channel Setup + IG Test',
-    items: [
-      { text: 'First 10 listings published on Shopify', defaultDone: true },
-      { text: 'Etsy shop created, 10 listings', defaultDone: false },
-      { text: 'TikTok Shop application submitted', defaultDone: false },
-      { text: 'Email capture installed (Klaviyo)', defaultDone: true },
-      { text: 'IG test: 3 posts/7 days on @goodvibes_tee', defaultDone: true },
-      { text: '$10 paid boost on one @goodvibes_tee post', defaultDone: false },
-      { text: 'Ifscarlet_KA introduction post', defaultDone: true }
-    ]
-  },
-  {
-    id: 'w3', label: 'Week 3', theme: 'Decision Points + Traffic Start',
-    items: [
-      { text: 'IG test results reviewed, keep/abandon decision locked', defaultDone: false },
-      { text: 'Samples quality-checked', defaultDone: false },
-      { text: 'Real product photography session (non-AI)', defaultDone: false },
-      { text: 'Listings updated with real photos', defaultDone: false },
-      { text: 'First Meta ad campaign live', defaultDone: false },
-      { text: 'TikTok organic cadence 2–3x/week', defaultDone: false },
-      { text: 'Catalog expansion to 20–25 listings', defaultDone: true }
-    ]
-  },
-  {
-    id: 'w4', label: 'Week 4', theme: 'Soft Launch + First Sales',
-    items: [
-      { text: 'Public launch communications across channels', defaultDone: false },
-      { text: 'Ifscarlet_KA relaunch announcement story', defaultDone: false },
-      { text: 'Email sent to existing GVT contacts', defaultDone: false },
-      { text: 'Ad set optimization (kill/scale)', defaultDone: false },
-      { text: 'TikTok Shop live, top 10 SKUs listed', defaultDone: false },
-      { text: 'AI Agent #1 build researched/scoped', defaultDone: false }
-    ]
-  },
-  {
-    id: 'm2', label: 'Month 2', theme: 'Scale What Works',
-    items: [
-      { text: 'Catalog expansion to 50–60 SKUs', defaultDone: false },
-      { text: 'Scale Meta ad spend on ROAS-positive campaigns', defaultDone: false },
-      { text: 'TikTok Shop live, 5–10 creator outreach', defaultDone: false },
-      { text: 'Email automation (post-purchase, abandoned cart, second-purchase)', defaultDone: false },
-      { text: 'AI Agent #1 built and deployed', defaultDone: false },
-      { text: 'July 4 Americana capsule reactivated', defaultDone: false },
-      { text: 'Ifscarlet_KA cadence scaled to 2x/post', defaultDone: false }
-    ]
-  },
-  {
-    id: 'm3', label: 'Month 3', theme: 'Push to Target', collapsed: true,
-    items: [
-      { text: 'Catalog to 80–120 listings', defaultDone: false },
-      { text: 'Back-to-school push', defaultDone: false },
-      { text: 'Amazon Merch on Demand live', defaultDone: false },
-      { text: 'Audience broadening', defaultDone: false },
-      { text: 'AI Agent #2 built', defaultDone: false },
-      { text: 'Public case-study content piece', defaultDone: false },
-      { text: '2–3 AI services prospect conversations', defaultDone: false }
-    ]
-  }
-];
-
-/* ===================== STATIC SEED DATA ===================== */
-const ROADMAP = [
-  {
-    id: 'w1', label: 'Week 1', dates: 'Jun 8–14', theme: 'Brand Foundation',
-    planned: ['Brand statement lock','Logo refresh','Shopify admin audit','Theme customization','12–15 designs created','Samples ordered'],
-    target: 'Refreshed Shopify store live with new brand identity, 12–15 designs, samples ordered',
-    actualNotes: ''
-  },
-  {
-    id: 'w2', label: 'Week 2', dates: 'Jun 15–21', theme: 'Channel Setup + IG Test',
-    planned: ['First 10 listings published','Etsy shop created + 10 listings','TikTok Shop application','Klaviyo / email capture installed','IG test protocol (3 posts / 7 days)','Ifscarlet_KA introduction story'],
-    target: 'Shopify + Etsy live with 10+ listings, TikTok Shop applied, email capture active, IG test running, Ifscarlet_KA intro made',
-    actualNotes: 'Etsy and TikTok Shop deferred to Month 2 (deliberate decision). Heavy Printify infrastructure crisis consumed most of week (product purge during dormancy, OAuth reauthorization issues). Shopify listings work continued into Week 3.'
-  },
-  {
-    id: 'w3', label: 'Week 3', dates: 'Jun 22–28', theme: 'Decision Points + Traffic Start',
-    planned: ['IG test results review','Samples QC','Real product photography','Listings updated with real photos','First Meta ad campaign','TikTok organic cadence','Catalog expansion to 20–25 listings'],
-    target: 'Real product photos live, first paid ads running, TikTok cadence established, IG path decided, 20–25 listings',
-    actualNotes: 'Catalog reached 16 products by end of week (not 20–25). AI-generated lifestyle hero images used instead of physical sample photography. Meta ads and TikTok organic not yet started. Ifscarlet_KA intro reel posted Day 22 (Jun 29) — first major external touchpoint, slightly delayed from original Week 2 target but executed.'
-  },
-  {
-    id: 'w4', label: 'Week 4', dates: 'Jun 29–Jul 5', theme: 'Soft Launch + First Sales',
-    planned: ['Public launch communications across channels','Ifscarlet_KA relaunch announcement','Ad set optimization','TikTok Shop listings live','AI agent #1 scoped'],
-    target: 'Cumulative revenue $1,500–$3,500, TikTok Shop listings live, ads optimized, AI agent #1 scoped',
-    actualNotes: 'In progress as of Day 23. Ifscarlet_KA reel posted and live. Klaviyo email capture set up (domain verified, sending configured) — ahead of original Week 2 placement for this item. Free shipping and checkout bugs fixed. 16 products live, targeting 20. TikTok Shop still deferred to Month 2.'
-  },
-  {
-    id: 'm2', label: 'Month 2', dates: 'Jul 6–Aug 2', theme: 'Scale What Works',
-    planned: ['Catalog to 50–60 SKUs','Scale ad spend on ROAS-positive campaigns','TikTok Shop live + micro-creator outreach','Email automation (welcome / abandoned cart / post-purchase)','AI Agent #1 built','July 4 Americana capsule reactivation','Increased Ifscarlet_KA cadence'],
-    target: 'Monthly revenue $3,000–$5,500, AI Agent #1 live, 50–60 SKUs, TikTok affiliate active, email automation deployed',
-    actualNotes: ''
-  },
-  {
-    id: 'm3', label: 'Month 3', dates: 'Aug 3–30', theme: 'Push to Target',
-    planned: ['Catalog to 80–120 listings','Back-to-school push','Amazon Merch on Demand live','Audience broadening beyond KA niche','AI Agent #2 built','First public content about the AI+POD workflow','AI services prospect conversations opened'],
-    target: 'ORIGINAL: Monthly revenue $5,000–$8,000, net profit $2,000–$3,500, two AI agents live, AI services pipeline opened. REVISED: Monthly revenue $1,500–$3,500',
-    actualNotes: ''
-  }
-];
-
-const REVENUE_TARGETS = [
-  { month: 'Month 1 (end of Week 4)', original: '$1,500 – $3,500', revised: 'Unchanged', status: 'Missed — $0 actual' },
-  { month: 'Month 2', original: '$3,000 – $5,500', revised: 'Unchanged', status: 'In progress' },
-  { month: 'Month 3', original: '$5,000 – $8,000', revised: '$1,500 – $3,500 (revised down ~Day 20)', status: 'Upcoming' }
-];
-
-const SEED_ADDITIONAL = [
-  { text: '4 new products published (reached 16 total)', done: true, phaseTag: 'unplanned' },
-  { text: 'Free shipping bug fixed (Printify shipping profile assignment)', done: true, phaseTag: 'unplanned' },
-  { text: 'Klaviyo selected as email platform', done: true, phaseTag: 'unplanned' },
-  { text: 'Naming convention locked: [Design Name] Unisex Tee / Women\'s Tee / Hoodie', done: true, phaseTag: 'unplanned' },
-  { text: 'Hero image direction set: 70% candid editorial', done: true, phaseTag: 'unplanned' },
-  { text: 'Ifscarlet_KA intro reel posted', done: true, phaseTag: 'unplanned' },
-  { text: 'Klaviyo popup design + copy', done: false, phaseTag: 'unplanned' },
-  { text: 'Klaviyo welcome flow (2–3 emails)', done: false, phaseTag: 'unplanned' },
-  { text: 'Collections rename + nav wiring (Unisex Tees / Women\'s Tees)', done: false, phaseTag: 'unplanned' },
-  { text: 'Size chart HTML fix on legacy products', done: false, phaseTag: 'unplanned' },
-  { text: 'Coffee Can Wait Women\'s Tee decision', done: false, phaseTag: 'unplanned' },
-  { text: 'Zoho email alias setup (mail@goodvibestee.com)', done: false, phaseTag: 'unplanned' },
-  { text: 'Border Collie Breed Study Unisex Tee — designed, published to Shopify', done: true, phaseTag: 'unplanned' },
-  { text: 'Popup A/B test live: Early Access vs. 15% Discount', done: true, phaseTag: 'unplanned' },
-  { text: '@goodvibes_tee Border Collie post published', done: true, phaseTag: 'unplanned' },
-  { text: 'Full sprint review conducted — Day 33', done: true, phaseTag: 'unplanned' },
-  { text: 'GVT Command Center built and deployed to Netlify', done: true, phaseTag: 'unplanned' },
-  { text: 'Golden Retriever Breed Study Women\'s Tee — published to Shopify', done: true, phaseTag: 'unplanned' },
-  { text: 'Walk Ready #2 Women\'s Tee — published to Shopify', done: true, phaseTag: 'unplanned' },
-  { text: 'Corgi Breed Study Women\'s Tee — published to Shopify, IG reel + caption prepared', done: true, phaseTag: 'unplanned' },
-  { text: '@goodvibes_tee Golden Retriever reel published', done: true, phaseTag: 'unplanned' },
-  { text: 'Golden Retriever reel posted to Ifscarlet_KA', done: true, phaseTag: 'unplanned' },
-  { text: 'Ifscarlet_KA 3x/week cadence maintained since Jul 10', done: true, phaseTag: 'unplanned' },
-  { text: '"Borrowed." Confessions Series — product + copy finalized, published to Shopify', done: true, phaseTag: 'unplanned' },
-  { text: '"I Can Explain." Confessions Series — product + copy finalized, published to Shopify', done: true, phaseTag: 'unplanned' }
-];
-
-const SEED_PRODUCTS = [
-  { name: 'My Dog Is My Therapist Unisex Tee', price: '29.99', status: 'live' },
-  { name: 'Good Vibes Only Unisex Tee', price: '29.99', status: 'live' },
-  { name: 'My Dog Has Better Manners Women\'s Tee', price: '31.99', status: 'live' },
-  { name: 'Mom and Her Dog Women\'s Tee', price: '31.99', status: 'live' },
-  { name: 'My Furry BFF Hoodie', price: '', status: 'live' },
-  { name: 'My Furry BFF Women\'s Tee', price: '31.99', status: 'live' },
-  { name: 'My Furry BFF Unisex Tee', price: '29.99', status: 'live' },
-  { name: 'Top Dog Fur Force Unisex Tee', price: '29.99', status: 'live' },
-  { name: 'Daisy by Daisy Unisex Tee', price: '29.99', status: 'live' },
-  { name: 'The Cuddle Dealer Unisex Tee', price: '29.99', status: 'live' },
-  { name: 'Love Has Four Paws Women\'s Tee', price: '31.99', status: 'live' },
-  { name: 'Certified Mutt Unisex Tee', price: '29.99', status: 'live' },
-  { name: 'My Dog Is The Best Breed Unisex Tee', price: '29.99', status: 'live' },
-  { name: 'Freedom. Found On Four Paws. Unisex Tee', price: '29.99', status: 'live' },
-  { name: 'Dog Person Definition Women\'s Tee', price: '31.99', status: 'live' },
-  { name: 'Home Collection — Paw & Hand Women\'s Tee', price: '31.99', status: 'live' },
-  { name: 'Border Collie Breed Study Unisex Tee', price: '', status: 'live' },
-  { name: 'Product 18', price: '', status: 'live' },
-  { name: 'Product 19', price: '', status: 'live' },
-  { name: 'Product 20', price: '', status: 'live' },
-  { name: 'Product 21', price: '', status: 'live' },
-  { name: 'Product 22', price: '', status: 'live' },
-  { name: 'Golden Retriever Breed Study Women\'s Tee', price: '', status: 'live' },
-  { name: 'Walk Ready #2 Women\'s Tee', price: '', status: 'live' },
-  { name: 'Corgi Breed Study Women\'s Tee', price: '', status: 'live' }
-];
-
-const SEED_DECISIONS = [
-  { date: '2026-06-08', text: 'Day 1 reset, sprint officially begins' },
-  { date: '2026-06-18', text: 'Printify product purge discovered during dormancy recovery — major infrastructure blocker, consumed most of session' },
-  { date: '2026-06-18', text: 'Decided "Keep individual product details" only protects existing connections, not new publishes — learned the hard way after duplicate products created' },
-  { date: '2026-06-25', text: 'Naming convention locked — [Design Name] Unisex Tee / Women\'s Tee / Hoodie' },
-  { date: '2026-06-25', text: 'Hero image direction — 70% candid editorial' },
-  { date: '2026-06-26', text: 'Shopify upgraded to Basic plan ($39/mo), 4 new products published' },
-  { date: '2026-06-27', text: 'Month 3 revenue target revised down from $5K–$8K to $1,500–$3,500' },
-  { date: '2026-06-29', text: 'Free shipping bug fixed — Printify shipping profile required manual product assignment, not automatic' },
-  { date: '2026-06-29', text: 'Klaviyo selected for email over Mailchimp (no native Shopify integration) and Privy (low familiarity) — chosen for Shopify integration depth' },
-  { date: '2026-06-29', text: 'Ifscarlet_KA intro reel posted — first major external touchpoint, 34 visitors within hours of posting' },
-  { date: '2026-06-30', text: 'Command Center rebuild moved from chat-interface artifacts to Claude Code for proper dev environment' },
-  { date: '2026-07-07', text: 'New series launched: Breed Study — fine-art single-color breed portraits, pivoting from font/icon series. Breed order: mixed, no strict audience-priority sequencing.' },
-  { date: '2026-07-07', text: 'Popup offer A/B test launched — testing whether no-coupon positioning was suppressing signups (0 organic signups / 80 views prior to test).' },
-  { date: '2026-07-07', text: '@goodvibes_tee IG activity tracked as individual deliverable entries, not a structured counter, to keep CC maintenance light.' },
-  { date: '2026-07-10', text: 'Sprint review conducted Day 33 (Jul 10, Week 5). Month 1 revenue target ($2,500-$4,000 cumulative) missed — actual revenue $0. Root causes identified: Ifscarlet_KA warm audience under-utilized (1 touch in 5 weeks vs. planned Wed/Sat cadence), Command Center/infrastructure work consumed disproportionate time relative to direct GVT revenue impact, Etsy and TikTok Shop channels not launched as planned. Catalog build (22 products, 3 series) and brand identity execution assessed as strong; sales channel activation assessed as the clear gap.' },
-  { date: '2026-07-10', text: 'Week 6 objective locked: break the zero-sales streak by end of week (target Jul 17). Action plan: (1) Ifscarlet_KA minimum 3 posts/week resumed as top priority, (2) no further CC/tooling work unless something breaks, (3) monitor popup A/B test mid-week, act on winning variant, (4) @goodvibes_tee keep/abandon decision moved up to ~Jul 17 (from original 3-week window) given weak signal so far.' },
-  { date: '2026-07-13', text: 'Golden Retriever reel (couch/coffee scene) underperformed on both accounts: 20 views/dead on @goodvibes_tee (60/40 follower split vs normal 80%+ non-follower), ~half normal reach on Ifscarlet_KA. Account status clean, no copyright flag. Root cause assessed as content style — static, symmetric, direct-gaze, overly polished AI shot reads as ad/staged and gets scrolled past, vs. motion/candid shots (walking, mid-action) which perform well on both accounts. Fix: favor motion and imperfection over posed symmetry going forward.' },
-  { date: '2026-07-13', text: 'Popup A/B test, ~1 week in: zero signups both variants (Early Access vs 15% Discount). Continuing to monitor.' },
-  { date: '2026-07-13', text: '@goodvibes_tee decision: 2 more posts (motion/candid style) as final test. Pass = any real engagement (non-self/friend like or comment, or Shopify IG referral click). Fail on both = abandon and restart fresh, decide reused vs new handle separately.' },
-  { date: '2026-07-19', text: '@goodvibes_tee "I Can Explain" colorway carousel reel: 132 views in 20 min vs. 22 views over 4 days on prior post — real signal. Likely mix of: motion/candid format, strong hook overlay gag ("still not sorry"), and/or early algorithmic velocity. Still needs confirmed real engagement (likes/comments/shares/saves or Shopify IG-referral click) before counting toward keep/abandon pass criteria.' },
-  { date: '2026-07-19', text: 'Design QA rule locked: vary AI lifestyle model dog breed away from tan/curly-coated breeds (cavapoo/goldendoodle) in future lifestyle image gens. Reason: visual overlap between model dog and illustrated print dog reads as "portrait of the shirt" rather than universal design — undermines the broad-appeal positioning.' },
-  { date: '2026-07-19', text: 'Printify: Global Fulfillment Eligible toggle = OFF for GVT. US-only marketing scope makes global fulfillment irrelevant; toggle was unnecessarily restricting color variant selection.' },
-  { date: '2026-07-19', text: 'Meta ad competitive landscape assessed: majority of dog-apparel POD ads are low-quality/brand-new accounts running generic clipart designs with urgency tactics (free shipping badges, 15% off stickers). Pattern assessed as unprofitable ad churn (weak unit economics for cold traffic + discounting, no LTV infrastructure). GVT decision: do not imitate. GVT\'s actual edge is design quality, brand voice, and warm audience — competing on ad spend volume alone is a losing game for GVT.' }
-];
-
-const SEED_HOURS = {
-  '2026-06-29-backfill': { date: '2026-06-29', label: 'Backfill (Day 1–22 prior hours)', gvt: 43, ai: 9 },
-  '2026-06-28': { date: '2026-06-28', label: 'Backfill — week of Jun 22-28', gvt: 40, ai: 0 },
-  '2026-07-05': { date: '2026-07-05', label: 'Backfill — week of Jun 29-Jul 5', gvt: 20, ai: 0 },
-  '2026-07-06': { date: '2026-07-06', gvt: 5, ai: 0 },
-  '2026-07-07': { date: '2026-07-07', gvt: 4, ai: 0 },
-  '2026-07-11': { date: '2026-07-11', gvt: 3, ai: 0 },
-  '2026-07-12': { date: '2026-07-12', gvt: 3, ai: 0 },
-  '2026-07-13': { date: '2026-07-13', gvt: 3, ai: 0 }
-};
-
-/* ===================== PLAN ITEMS HELPERS ===================== */
-function buildDefaultPlanItems() {
-  const planItems = {};
-  PLAN_PHASES.forEach(phase => {
-    phase.items.forEach((item, i) => {
-      planItems[`${phase.id}-${i}`] = item.defaultDone;
-    });
-  });
-  return planItems;
+function formatDisplayDate(iso) {
+  return parseLocalDate(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
-
-// Compute overall plan % including tagged additional deliverables
-function getPlanProgress(s) {
-  let total = 0, done = 0;
-  PLAN_PHASES.forEach(phase => {
-    phase.items.forEach((_, i) => {
-      total++;
-      if (s.planItems[`${phase.id}-${i}`]) done++;
-    });
-    // Tagged additional deliverables roll into their phase count
-    (s.additionalDeliverables || []).forEach(d => {
-      if (d.phaseTag === phase.id) { total++; if (d.done) done++; }
-    });
-  });
-  return { total, done, pct: total ? Math.round((done / total) * 100) : 0 };
-}
-
-// Current phase = earliest phase still having any incomplete item
-function getCurrentPhase(s) {
-  for (const phase of PLAN_PHASES) {
-    const hasIncomplete = phase.items.some((_, i) => !s.planItems[`${phase.id}-${i}`])
-      || (s.additionalDeliverables || []).some(d => d.phaseTag === phase.id && !d.done);
-    if (hasIncomplete) return phase.label;
-  }
-  return 'Complete!';
-}
-
-/* ===================== SEED STATE ===================== */
-function buildSeedState() {
-  const planStatus = {};
-  ROADMAP.forEach(period => {
-    period.planned.forEach((_, i) => { planStatus[`${period.id}-${i}`] = 'pending'; });
-  });
-  return {
-    seeded: true,
-    dataVersion: DATA_VERSION,
-    streak: 16,
-    hours: { ...SEED_HOURS },
-    additionalDeliverables: SEED_ADDITIONAL.map((d, i) => ({ id: 'd' + i, ...d })),
-    products: SEED_PRODUCTS.map((p, i) => ({ id: 'p' + i, ...p })),
-    decisions: SEED_DECISIONS.map((d, i) => ({ id: 'k' + i, ...d })),
-    planStatus,
-    planItems: buildDefaultPlanItems(),
-    actualNotes: Object.fromEntries(ROADMAP.map(p => [p.id, p.actualNotes]))
-  };
-}
-
-/* ===================== MIGRATIONS ===================== */
-function applyMigrations(s) {
-  const v = s.dataVersion || 0;
-  if (v >= DATA_VERSION) return s;
-
-  if (v < 1) {
-    s.deliverables = s.deliverables || [];
-    const nd = [
-      { text: 'Border Collie Breed Study Unisex Tee — designed, published to Shopify', done: true },
-      { text: 'Popup A/B test live: Early Access vs. 15% Discount', done: true },
-      { text: '@goodvibes_tee Border Collie post published', done: true }
-    ];
-    nd.forEach(d => s.deliverables.push({ id: uid('d'), ...d }));
-    s.products.push({ id: uid('p'), name: 'Border Collie Breed Study Unisex Tee', price: '', status: 'live' });
-    [
-      { date: '2026-07-07', text: 'New series launched: Breed Study — fine-art single-color breed portraits, pivoting from font/icon series. Breed order: mixed, no strict audience-priority sequencing.' },
-      { date: '2026-07-07', text: 'Popup offer A/B test launched — testing whether no-coupon positioning was suppressing signups (0 organic signups / 80 views prior to test).' },
-      { date: '2026-07-07', text: '@goodvibes_tee IG activity tracked as individual deliverable entries, not a structured counter, to keep CC maintenance light.' }
-    ].forEach(d => s.decisions.push({ id: uid('k'), ...d }));
-    s.hours['2026-06-28'] = { date: '2026-06-28', label: 'Backfill — week of Jun 22-28', gvt: 40, ai: 0 };
-    s.hours['2026-07-05'] = { date: '2026-07-05', label: 'Backfill — week of Jun 29-Jul 5', gvt: 20, ai: 0 };
-    s.hours['2026-07-06'] = { date: '2026-07-06', gvt: 5, ai: 0 };
-    s.hours['2026-07-07'] = { date: '2026-07-07', gvt: 4, ai: 0 };
-  }
-
-  if (v < 2) {
-    s.deliverables = s.deliverables || [];
-    [
-      { date: '2026-07-10', text: 'Sprint review conducted Day 33 (Jul 10, Week 5). Month 1 revenue target ($2,500-$4,000 cumulative) missed — actual revenue $0. Root causes identified: Ifscarlet_KA warm audience under-utilized (1 touch in 5 weeks vs. planned Wed/Sat cadence), Command Center/infrastructure work consumed disproportionate time relative to direct GVT revenue impact, Etsy and TikTok Shop channels not launched as planned. Catalog build (22 products, 3 series) and brand identity execution assessed as strong; sales channel activation assessed as the clear gap.' },
-      { date: '2026-07-10', text: 'Week 6 objective locked: break the zero-sales streak by end of week (target Jul 17). Action plan: (1) Ifscarlet_KA minimum 3 posts/week resumed as top priority, (2) no further CC/tooling work unless something breaks, (3) monitor popup A/B test mid-week, act on winning variant, (4) @goodvibes_tee keep/abandon decision moved up to ~Jul 17 (from original 3-week window) given weak signal so far.' }
-    ].forEach(d => s.decisions.push({ id: uid('k'), ...d }));
-    s.deliverables.push({ id: uid('d'), text: 'Full sprint review conducted — Day 33', done: true });
-  }
-
-  if (v < 3) {
-    // Migrate flat deliverables → additionalDeliverables with phaseTag
-    const old = s.deliverables || [];
-    s.additionalDeliverables = old.map(d => ({ ...d, phaseTag: d.phaseTag || 'unplanned' }));
-    delete s.deliverables;
-    // Initialize planItems from PLAN_PHASES defaults
-    s.planItems = buildDefaultPlanItems();
-  }
-
-  if (v < 4) {
-    // v4: Jul 11-13 updates — new products, deliverables, hours, decisions
-    [
-      { name: 'Golden Retriever Breed Study Women\'s Tee', price: '', status: 'live' },
-      { name: 'Walk Ready #2 Women\'s Tee', price: '', status: 'live' },
-      { name: 'Corgi Breed Study Women\'s Tee', price: '', status: 'live' }
-    ].forEach(p => s.products.push({ id: uid('p'), ...p }));
-
-    [
-      { text: 'Golden Retriever Breed Study Women\'s Tee — published to Shopify', done: true, phaseTag: 'unplanned' },
-      { text: 'Walk Ready #2 Women\'s Tee — published to Shopify', done: true, phaseTag: 'unplanned' },
-      { text: 'Corgi Breed Study Women\'s Tee — published to Shopify, IG reel + caption prepared', done: true, phaseTag: 'unplanned' },
-      { text: '@goodvibes_tee Golden Retriever reel published', done: true, phaseTag: 'unplanned' },
-      { text: 'Golden Retriever reel posted to Ifscarlet_KA', done: true, phaseTag: 'unplanned' },
-      { text: 'Ifscarlet_KA 3x/week cadence maintained since Jul 10', done: true, phaseTag: 'unplanned' }
-    ].forEach(d => s.additionalDeliverables.push({ id: uid('d'), ...d }));
-
-    s.hours['2026-07-11'] = { date: '2026-07-11', gvt: 3, ai: 0 };
-    s.hours['2026-07-12'] = { date: '2026-07-12', gvt: 3, ai: 0 };
-    s.hours['2026-07-13'] = { date: '2026-07-13', gvt: 3, ai: 0 };
-
-    [
-      { date: '2026-07-13', text: 'Golden Retriever reel (couch/coffee scene) underperformed on both accounts: 20 views/dead on @goodvibes_tee (60/40 follower split vs normal 80%+ non-follower), ~half normal reach on Ifscarlet_KA. Account status clean, no copyright flag. Root cause assessed as content style — static, symmetric, direct-gaze, overly polished AI shot reads as ad/staged and gets scrolled past, vs. motion/candid shots (walking, mid-action) which perform well on both accounts. Fix: favor motion and imperfection over posed symmetry going forward.' },
-      { date: '2026-07-13', text: 'Popup A/B test, ~1 week in: zero signups both variants (Early Access vs 15% Discount). Continuing to monitor.' },
-      { date: '2026-07-13', text: '@goodvibes_tee decision: 2 more posts (motion/candid style) as final test. Pass = any real engagement (non-self/friend like or comment, or Shopify IG referral click). Fail on both = abandon and restart fresh, decide reused vs new handle separately.' }
-    ].forEach(d => s.decisions.push({ id: uid('k'), ...d }));
-  }
-
-  if (v < 5) {
-    // v5: Jul 19 session — Confessions Series, content/design/market decisions
-    [
-      { text: '"Borrowed." Confessions Series — product + copy finalized, published to Shopify', done: true, phaseTag: 'unplanned' },
-      { text: '"I Can Explain." Confessions Series — product + copy finalized, published to Shopify', done: true, phaseTag: 'unplanned' }
-    ].forEach(d => s.additionalDeliverables.push({ id: uid('d'), ...d }));
-
-    [
-      { date: '2026-07-19', text: '@goodvibes_tee "I Can Explain" colorway carousel reel: 132 views in 20 min vs. 22 views over 4 days on prior post — real signal. Likely mix of: motion/candid format, strong hook overlay gag ("still not sorry"), and/or early algorithmic velocity. Still needs confirmed real engagement (likes/comments/shares/saves or Shopify IG-referral click) before counting toward keep/abandon pass criteria.' },
-      { date: '2026-07-19', text: 'Design QA rule locked: vary AI lifestyle model dog breed away from tan/curly-coated breeds (cavapoo/goldendoodle) in future lifestyle image gens. Reason: visual overlap between model dog and illustrated print dog reads as "portrait of the shirt" rather than universal design — undermines the broad-appeal positioning.' },
-      { date: '2026-07-19', text: 'Printify: Global Fulfillment Eligible toggle = OFF for GVT. US-only marketing scope makes global fulfillment irrelevant; toggle was unnecessarily restricting color variant selection.' },
-      { date: '2026-07-19', text: 'Meta ad competitive landscape assessed: majority of dog-apparel POD ads are low-quality/brand-new accounts running generic clipart designs with urgency tactics (free shipping badges, 15% off stickers). Pattern assessed as unprofitable ad churn (weak unit economics for cold traffic + discounting, no LTV infrastructure). GVT decision: do not imitate. GVT\'s actual edge is design quality, brand voice, and warm audience — competing on ad spend volume alone is a losing game for GVT.' }
-    ].forEach(d => s.decisions.push({ id: uid('k'), ...d }));
-  }
-
-  s.dataVersion = DATA_VERSION;
-  return s;
-}
-
-/* ===================== STATE / PERSISTENCE ===================== */
-let state = loadState();
-
-function loadState() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (raw) {
-    try {
-      const parsed = JSON.parse(raw);
-      const migrated = applyMigrations(parsed);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
-      return migrated;
-    } catch (e) { /* fall through */ }
-  }
-  const seeded = buildSeedState();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
-  return seeded;
-}
-function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str ?? '';
+  return div.innerHTML;
 }
 function uid(prefix) {
   return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
-/* ===================== RENDER: HEADER ===================== */
-function renderDayCounter() {
-  document.getElementById('dayNumber').textContent = getSprintDay();
+/* ===================== STATE ===================== */
+let state = null;
+
+function saveState() {
+  state.updatedAt = new Date().toISOString();
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+  schedulePush();
+}
+
+/* ===================== LEGACY IMPORT =====================
+   One-time, non-destructive: pulls user-entered data out of the v1
+   localStorage blob (hours logged in the UI, custom decisions/extras,
+   checked-off plan items) and merges it into the v2 baseline. The v1
+   blob is left untouched as a fallback. */
+function importLegacy(s) {
+  let legacy;
+  try { legacy = JSON.parse(localStorage.getItem(LS_LEGACY_KEY)); } catch { legacy = null; }
+  if (!legacy) return;
+
+  // Hours: v1 entries win for dates the baseline doesn't have
+  Object.entries(legacy.hours || {}).forEach(([key, entry]) => {
+    if (!s.hours[key]) s.hours[key] = entry;
+  });
+
+  // Decisions: append any the baseline doesn't already contain (user-added)
+  const knownDecisions = new Set(s.decisions.map(d => d.text));
+  (legacy.decisions || []).forEach(d => {
+    if (!knownDecisions.has(d.text)) s.decisions.push({ id: uid('k'), date: d.date, text: d.text });
+  });
+
+  // Extras: adopt done-state by text match; append unknown items
+  const extraByText = new Map(s.additionalDeliverables.map(d => [d.text, d]));
+  (legacy.additionalDeliverables || legacy.deliverables || []).forEach(d => {
+    const match = extraByText.get(d.text);
+    if (match) match.done = d.done;
+    else s.additionalDeliverables.push({ id: uid('d'), text: d.text, done: !!d.done });
+  });
+
+  // Products: baseline list is canonical (27 per Day 47 correction), but
+  // keep anything the user added by hand that we don't know about
+  const knownProducts = new Set(s.products.map(p => p.name));
+  (legacy.products || []).forEach(p => {
+    if (!knownProducts.has(p.name)) s.products.push({ id: uid('p'), name: p.name, price: p.price || '', status: p.status || 'live' });
+  });
+
+  // Archive statuses: v1 plan checkboxes upgrade 'open' items to 'done'
+  // (never override an explicit done/dropped/carried call in the baseline)
+  const items = {};
+  s.archive.phases.forEach(ph => ph.items.forEach(it => { items[it.id] = it; }));
+  Object.entries(legacy.planItems || {}).forEach(([key, checked]) => {
+    if (checked && items[key] && items[key].status === 'open') items[key].status = 'done';
+  });
+}
+
+/* ===================== SYNC =====================
+   Shared truth lives in Netlify Blobs behind /api/state (see
+   netlify/functions/state.mjs). The client is local-first: every change
+   lands in localStorage immediately, then a debounced push follows.
+   Newer updatedAt wins on boot. Honest pill states, no fake "saved". */
+const sync = { mode: 'checking', timer: null };
+
+function syncKey() { return localStorage.getItem(LS_SYNC_KEY) || ''; }
+
+function setPill(mode, label, title) {
+  sync.mode = mode;
+  const pill = document.getElementById('syncPill');
+  pill.textContent = label;
+  pill.title = title || label;
+  pill.className = 'sync-pill ' + (mode === 'synced' ? 'synced' : mode === 'error' ? 'error' : 'local');
+}
+
+async function apiCall(method, body) {
+  const res = await fetch('/api/state', {
+    method,
+    headers: { 'x-gvt-key': syncKey(), ...(body ? { 'Content-Type': 'application/json' } : {}) },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  let json = null;
+  try { json = await res.json(); } catch { /* non-JSON = function absent */ }
+  return { status: res.status, json };
+}
+
+async function initSync() {
+  try {
+    const { status, json } = await apiCall('GET');
+    if (status === 503) { setPill('local', 'Local only', 'Sync server not configured yet (GVT_ACCESS_KEY unset in Netlify)'); return; }
+    if (status === 401) { setPill('local', 'Set sync key', 'Server is configured — enter the access key in Settings to sync'); return; }
+    if (status !== 200 || !json) { setPill('local', 'No sync', 'Sync endpoint unavailable — running on localStorage'); return; }
+
+    const server = json.state;
+    if (server && server.updatedAt > state.updatedAt) {
+      state = server;
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+      renderAll();
+      setPill('synced', 'Synced ✓', 'Pulled newer state from server');
+    } else if (!server || state.updatedAt > server.updatedAt) {
+      await apiCall('PUT', state);
+      setPill('synced', 'Synced ✓', 'Pushed local state to server');
+    } else {
+      setPill('synced', 'Synced ✓', 'Local and server state match');
+    }
+  } catch {
+    setPill('local', 'Offline', 'Could not reach sync endpoint — changes stay local until next load');
+  }
+}
+
+function schedulePush() {
+  if (sync.mode !== 'synced') return;
+  clearTimeout(sync.timer);
+  sync.timer = setTimeout(async () => {
+    try {
+      const { status } = await apiCall('PUT', state);
+      if (status !== 200) setPill('error', 'Sync failed', 'Push rejected — check key in Settings');
+    } catch {
+      setPill('error', 'Sync failed', 'Network error pushing state — will retry on next change');
+    }
+  }, 1200);
+}
+
+/* ===================== RENDER: HEADER + TODAY ===================== */
+function renderHeader() {
+  const day = getSprintDay();
+  document.getElementById('dayNumber').textContent = day;
+  document.getElementById('daysLeft').textContent = Math.max(0, 90 - day);
   document.getElementById('dayDate').textContent = todayLocal().toLocaleDateString(undefined, {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
+  document.getElementById('revenueBig').textContent = '$' + Number(state.revenueToDate || 0).toLocaleString();
 }
 
-/* ===================== RENDER: STATS ===================== */
+function nextCheckpoint() {
+  return state.checkpoints.filter(c => !c.done).sort((a, b) => a.date.localeCompare(b.date))[0] || null;
+}
+
+function currentBlock() {
+  const day = getSprintDay();
+  return state.blocks.find(b => day >= b.startDay && day <= b.endDay) || null;
+}
+
+function renderToday() {
+  const el = document.getElementById('todayStrip');
+  const day = getSprintDay();
+  const blk = currentBlock();
+  const cp = nextCheckpoint();
+  let cards = '';
+
+  if (blk) {
+    const remaining = blk.items.filter(i => !i.done).length;
+    cards += `<div class="today-card"><h3>Now: ${escapeHtml(blk.label)}</h3>
+      <p class="big">${remaining === 0 ? 'Block complete ✓' : remaining + ' item' + (remaining > 1 ? 's' : '') + ' remaining'}</p>
+      <p>${escapeHtml(blk.dates)}</p></div>`;
+  } else if (day >= 57) {
+    cards += `<div class="today-card"><h3>Iteration cycle</h3>
+      <p class="big">Execute on the last checkpoint's verdicts</p>
+      <p>Scale what worked, iterate what's unclear, kill what didn't</p></div>`;
+  }
+
+  if (cp) {
+    const diff = Math.round((parseLocalDate(cp.date) - todayLocal()) / 86400000);
+    const when = diff === 0 ? '<span class="big">TODAY — run it before anything else</span>'
+      : diff < 0 ? `<span class="big">Overdue by ${-diff} day${-diff > 1 ? 's' : ''} — run it now</span>`
+      : `<span class="big">In ${diff} day${diff > 1 ? 's' : ''}</span>`;
+    cards += `<div class="today-card checkpoint-next"><h3>Next checkpoint: ${escapeHtml(cp.label)}</h3>
+      <p>${when}</p><p>${formatDisplayDate(cp.date)} · Day ${cp.day}</p></div>`;
+  }
+
+  cards += `<div class="today-card freeze"><h3>Catalog frozen</h3>
+    <p>No new SKUs until Test Week 1 signal says what to build. Demand first.</p></div>`;
+
+  el.innerHTML = cards;
+}
+
 function renderStats() {
-  document.getElementById('streakValue').textContent = state.streak;
-
-  const totals = Object.values(state.hours).reduce((acc, e) => {
-    acc.gvt += Number(e.gvt) || 0;
-    acc.ai += Number(e.ai) || 0;
-    return acc;
+  const totals = Object.values(state.hours).reduce((a, e) => {
+    a.gvt += Number(e.gvt) || 0; a.ai += Number(e.ai) || 0; return a;
   }, { gvt: 0, ai: 0 });
-  document.getElementById('totalGvtHours').textContent = totals.gvt.toFixed(2).replace(/\.00$/, '');
-  document.getElementById('totalAiHours').textContent = totals.ai.toFixed(2).replace(/\.00$/, '');
-  document.getElementById('productCount').textContent = state.products.length;
-
-  const { pct } = getPlanProgress(state);
-  document.getElementById('deliverablesPct').textContent = pct + '%';
-  document.getElementById('currentPhase').textContent = getCurrentPhase(state);
+  document.getElementById('statGvtHours').textContent = totals.gvt.toFixed(2).replace(/\.00$/, '');
+  document.getElementById('statAiHours').textContent = totals.ai.toFixed(2).replace(/\.00$/, '');
+  document.getElementById('statProducts').textContent = state.products.filter(p => p.status === 'live').length;
+  const done = state.checkpoints.filter(c => c.done).length;
+  document.getElementById('statCheckpoints').textContent = `${done}/${state.checkpoints.length}`;
 }
 
-document.getElementById('editStreakBtn').addEventListener('click', () => {
-  const val = prompt('Update current streak (days):', state.streak);
-  if (val === null) return;
-  const num = parseInt(val, 10);
-  if (!isNaN(num) && num >= 0) { state.streak = num; saveState(); renderStats(); }
-});
-
-/* ===================== RENDER: PLAN PHASES ===================== */
-function renderPlanPhases() {
-  const container = document.getElementById('planPhaseList');
+/* ===================== RENDER: BLOCKS ===================== */
+function renderBlocks() {
+  const container = document.getElementById('blockList');
   container.innerHTML = '';
+  const day = getSprintDay();
 
-  PLAN_PHASES.forEach(phase => {
-    // Count done items including tagged additional deliverables
-    const planDone = phase.items.filter((_, i) => state.planItems[`${phase.id}-${i}`]).length;
-    const tagged = (state.additionalDeliverables || []).filter(d => d.phaseTag === phase.id);
-    const taggedDone = tagged.filter(d => d.done).length;
-    const totalCount = phase.items.length + tagged.length;
-    const doneCount = planDone + taggedDone;
-
+  state.blocks.forEach(blk => {
+    const doneCount = blk.items.filter(i => i.done).length;
+    const isCurrent = day >= blk.startDay && day <= blk.endDay;
+    const isPast = day > blk.endDay;
     const card = document.createElement('div');
-    card.className = 'phase-card' + (phase.collapsed ? '' : '');
-    card.dataset.id = phase.id;
-
-    const isComplete = doneCount === totalCount && totalCount > 0;
-    const badge = isComplete ? ' complete-badge' : '';
-
+    card.className = 'block-card' + (isCurrent ? ' current' : isPast ? ' past' : '');
     card.innerHTML = `
-      <div class="phase-head" data-id="${phase.id}">
-        <div class="phase-head-left">
-          <span class="phase-label">${phase.label}</span>
-          <span class="phase-theme">${phase.theme}</span>
+      <div class="block-head">
+        <div>
+          <span class="block-title">${escapeHtml(blk.label)}</span>
+          ${isCurrent ? '<span class="now-chip">Now</span>' : ''}
+          <div class="block-dates">${escapeHtml(blk.dates)}</div>
         </div>
-        <span class="phase-count${badge}">${doneCount}/${totalCount}</span>
+        <span class="block-count${doneCount === blk.items.length ? ' complete' : ''}">${doneCount}/${blk.items.length}</span>
       </div>
-      <ul class="plan-item-list phase-body" id="phase-body-${phase.id}"></ul>
-    `;
-
-    // Default collapsed state: Month 3 starts collapsed, others open
-    if (!phase.collapsed) card.classList.add('open');
-
-    card.querySelector('.phase-head').addEventListener('click', () => card.classList.toggle('open'));
-
-    const ul = card.querySelector(`#phase-body-${phase.id}`);
-
-    // Plan items
-    phase.items.forEach((item, i) => {
-      const key = `${phase.id}-${i}`;
-      const done = !!state.planItems[key];
+      <ul class="block-items"></ul>`;
+    const ul = card.querySelector('ul');
+    blk.items.forEach(item => {
       const li = document.createElement('li');
-      li.className = 'plan-item' + (done ? ' done' : '');
-      li.innerHTML = `
-        <input type="checkbox" ${done ? 'checked' : ''}>
-        <span class="plan-item-text">${escapeHtml(item.text)}</span>
-      `;
+      li.className = item.done ? 'done' : '';
+      li.innerHTML = `<input type="checkbox" ${item.done ? 'checked' : ''}><span>${escapeHtml(item.text)}</span>`;
       li.querySelector('input').addEventListener('change', (e) => {
-        state.planItems[key] = e.target.checked;
-        li.className = 'plan-item' + (e.target.checked ? ' done' : '');
+        item.done = e.target.checked;
         saveState();
-        renderPlanPhases();
-        renderStats();
+        renderBlocks();
+        renderToday();
       });
       ul.appendChild(li);
     });
+    container.appendChild(card);
+  });
 
-    // Tagged additional deliverables shown inline under their phase
-    tagged.forEach(d => {
-      const li = document.createElement('li');
-      li.className = 'plan-item plan-item-extra' + (d.done ? ' done' : '');
-      li.innerHTML = `
-        <input type="checkbox" ${d.done ? 'checked' : ''}>
-        <span class="plan-item-text">${escapeHtml(d.text)}</span>
-        <span class="extra-badge">extra</span>
-      `;
-      li.querySelector('input').addEventListener('change', (e) => {
-        d.done = e.target.checked;
-        li.className = 'plan-item plan-item-extra' + (e.target.checked ? ' done' : '');
-        saveState();
-        renderPlanPhases();
-        renderAdditionalDeliverables();
-        renderStats();
+  const note = document.createElement('div');
+  note.className = 'iteration-note';
+  note.innerHTML = '<strong>Day 57–90:</strong> weekly iteration cycles. Each Monday checkpoint below decides what the following week is spent on — scale, iterate, or kill per channel. Catalog expansion unfreezes only when demand data justifies specific SKUs.';
+  container.appendChild(note);
+}
+
+/* ===================== RENDER: CHECKPOINTS ===================== */
+function renderCheckpoints() {
+  document.getElementById('rulesList').innerHTML =
+    state.rules.map(r => `<li>${escapeHtml(r)}</li>`).join('');
+
+  const container = document.getElementById('checkpointList');
+  container.innerHTML = '';
+  const today = formatLocalDate(todayLocal());
+
+  state.checkpoints.forEach(cp => {
+    const isDue = !cp.done && cp.date <= today;
+    const card = document.createElement('div');
+    card.className = 'cp-card' + (isDue ? ' due open' : '') + (cp.done ? ' done-cp' : '');
+    card.innerHTML = `
+      <div class="cp-head">
+        <div>
+          <span class="cp-title">${escapeHtml(cp.label)}</span>
+          <div class="cp-meta">${formatDisplayDate(cp.date)} · Day ${cp.day}</div>
+        </div>
+        <span class="cp-status ${cp.done ? 'done' : isDue ? 'due' : ''}">${cp.done ? 'Done ✓' : isDue ? 'Due' : 'Upcoming'}</span>
+      </div>
+      <div class="cp-body">
+        <div class="table-wrap">
+          <table class="cp-table">
+            <thead><tr><th>Channel</th><th>Spend $</th><th>Clicks</th><th>Sessions</th><th>Conv.</th><th>Rev $</th><th>Verdict</th><th>Notes</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <textarea class="cp-summary" placeholder="Checkpoint summary — what was decided and why...">${escapeHtml(cp.summary || '')}</textarea>
+        <div class="cp-actions">
+          <button class="btn-text add-row" type="button">+ Add channel row</button>
+          <button class="btn-primary complete-btn" type="button">${cp.done ? 'Reopen checkpoint' : 'Mark checkpoint complete'}</button>
+        </div>
+      </div>`;
+
+    card.querySelector('.cp-head').addEventListener('click', () => card.classList.toggle('open'));
+
+    const tbody = card.querySelector('tbody');
+    cp.channels.forEach(row => {
+      const tr = document.createElement('tr');
+      const num = (field, width) => `<td style="width:${width}"><input type="number" min="0" step="any" data-f="${field}" value="${escapeHtml(row[field])}"></td>`;
+      tr.innerHTML = `
+        <td class="ch-name">${escapeHtml(row.name)}</td>
+        ${num('spend', '70px')}${num('clicks', '64px')}${num('sessions', '64px')}${num('conversions', '58px')}${num('revenue', '70px')}
+        <td style="width:92px">
+          <select data-f="verdict" class="verdict-${row.verdict}">
+            <option value="pending" ${row.verdict === 'pending' ? 'selected' : ''}>—</option>
+            <option value="scale" ${row.verdict === 'scale' ? 'selected' : ''}>Scale</option>
+            <option value="iterate" ${row.verdict === 'iterate' ? 'selected' : ''}>Iterate</option>
+            <option value="kill" ${row.verdict === 'kill' ? 'selected' : ''}>Kill</option>
+          </select>
+        </td>
+        <td style="min-width:140px"><input type="text" data-f="notes" value="${escapeHtml(row.notes)}"></td>`;
+      tr.querySelectorAll('[data-f]').forEach(input => {
+        input.addEventListener('change', () => {
+          row[input.dataset.f] = input.value;
+          if (input.dataset.f === 'verdict') input.className = `verdict-${input.value}`;
+          saveState();
+        });
       });
-      ul.appendChild(li);
+      tbody.appendChild(tr);
+    });
+
+    card.querySelector('.cp-summary').addEventListener('blur', (e) => {
+      cp.summary = e.target.value;
+      saveState();
+    });
+    card.querySelector('.add-row').addEventListener('click', () => {
+      const name = prompt('Channel name for this row:');
+      if (!name || !name.trim()) return;
+      cp.channels.push({ id: uid('r'), name: name.trim(), spend: '', clicks: '', sessions: '', conversions: '', revenue: '', verdict: 'pending', notes: '' });
+      saveState();
+      renderCheckpoints();
+    });
+    card.querySelector('.complete-btn').addEventListener('click', () => {
+      cp.done = !cp.done;
+      saveState();
+      renderCheckpoints();
+      renderToday();
+      renderStats();
     });
 
     container.appendChild(card);
   });
 }
 
-/* ===================== RENDER: ADDITIONAL DELIVERABLES ===================== */
-function renderAdditionalDeliverables() {
-  const list = document.getElementById('deliverableList');
-  list.innerHTML = '';
-  (state.additionalDeliverables || []).forEach(item => {
-    const li = document.createElement('li');
-    li.className = item.done ? 'done' : '';
-    const tagLabel = item.phaseTag && item.phaseTag !== 'unplanned'
-      ? `<span class="phase-tag-badge">${item.phaseTag.toUpperCase()}</span>` : '';
-    li.innerHTML = `
-      <input type="checkbox" ${item.done ? 'checked' : ''}>
-      <span class="delv-text" contenteditable="true">${escapeHtml(item.text)}</span>
-      ${tagLabel}
-      <button class="btn-text danger">Delete</button>
-    `;
-    const checkbox = li.querySelector('input');
-    const textEl = li.querySelector('.delv-text');
-
-    checkbox.addEventListener('change', () => {
-      item.done = checkbox.checked;
-      saveState();
-      renderAdditionalDeliverables();
-      renderPlanPhases();
-      renderStats();
-    });
-    textEl.addEventListener('blur', () => {
-      const t = textEl.textContent.trim();
-      if (t) { item.text = t; saveState(); } else { textEl.textContent = item.text; }
-    });
-    li.querySelector('button').addEventListener('click', () => {
-      if (confirm('Delete this item?')) {
-        state.additionalDeliverables = state.additionalDeliverables.filter(d => d.id !== item.id);
-        saveState();
-        renderAdditionalDeliverables();
-        renderPlanPhases();
-        renderStats();
-      }
-    });
-    list.appendChild(li);
+/* ===================== RENDER: CHANNELS + UTM ===================== */
+function renderChannels() {
+  const grid = document.getElementById('channelList');
+  grid.innerHTML = '';
+  state.channels.forEach(ch => {
+    const card = document.createElement('div');
+    card.className = 'channel-card' + (ch.status === 'repurposed' ? ' repurposed' : '');
+    card.innerHTML = `
+      <div class="channel-name">${escapeHtml(ch.name)}<span class="ch-status ${ch.status}">${escapeHtml(ch.status)}</span></div>
+      <p class="channel-role">${escapeHtml(ch.role)}</p>
+      ${ch.utmSource ? `<span class="channel-utm">utm_source=${escapeHtml(ch.utmSource)} · utm_medium=${escapeHtml(ch.utmMedium)}</span>` : '<span class="channel-utm">no outbound links from this account</span>'}`;
+    grid.appendChild(card);
   });
+
+  const select = document.getElementById('utmChannel');
+  select.innerHTML = state.channels
+    .filter(ch => ch.utmSource)
+    .map(ch => `<option value="${ch.id}">${escapeHtml(ch.name)}</option>`)
+    .join('');
 }
 
-document.getElementById('deliverableForm').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const text = document.getElementById('deliverableText').value.trim();
-  const phaseTag = document.getElementById('deliverablePhaseTag').value;
-  if (!text) return;
-  state.additionalDeliverables.push({ id: uid('d'), text, done: false, phaseTag });
-  saveState();
-  renderAdditionalDeliverables();
-  renderPlanPhases();
-  renderStats();
-  e.target.reset();
-});
+function buildUtm() {
+  const chId = document.getElementById('utmChannel').value;
+  const ch = state.channels.find(c => c.id === chId);
+  const campaign = document.getElementById('utmCampaign').value.trim();
+  const content = document.getElementById('utmContent').value.trim();
+  let path = document.getElementById('utmPath').value.trim() || '/';
+  if (!path.startsWith('/')) path = '/' + path;
+  const out = document.getElementById('utmResult');
+  if (!ch || !campaign) { out.textContent = 'Pick a channel and enter a campaign slug…'; return; }
+  const base = (state.settings.baseUrl || '').replace(/\/$/, '');
+  const params = new URLSearchParams({ utm_source: ch.utmSource, utm_medium: ch.utmMedium, utm_campaign: campaign });
+  if (content) params.set('utm_content', content);
+  out.textContent = `${base}${path}?${params.toString()}`;
+}
 
-/* ===================== HOURS LOG ===================== */
+/* ===================== RENDER: SIMPLE PANELS ===================== */
+function renderRevenue() {
+  document.getElementById('revenueTableBody').innerHTML = state.revenueTargets
+    .map(r => `<tr><td>${escapeHtml(r.month)}</td><td>${escapeHtml(r.original)}</td><td>${escapeHtml(r.revised)}</td><td>${escapeHtml(r.status)}</td></tr>`)
+    .join('');
+}
+
 function renderHours() {
   const tbody = document.getElementById('hoursTableBody');
   tbody.innerHTML = '';
-  const entries = Object.entries(state.hours)
-    .sort((a, b) => (b[1].date || '').localeCompare(a[1].date || ''));
-  entries.forEach(([key, e]) => {
-    const total = (Number(e.gvt) || 0) + (Number(e.ai) || 0);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${e.label || e.date}</td>
-      <td>${e.gvt}</td>
-      <td>${e.ai}</td>
-      <td>${total}</td>
-      <td><button class="btn-text danger" data-key="${key}">Delete</button></td>
-    `;
-    tr.querySelector('button').addEventListener('click', () => {
-      if (confirm('Delete this hours entry?')) {
-        delete state.hours[key];
-        saveState(); renderHours(); renderStats();
-      }
-    });
-    tbody.appendChild(tr);
-  });
-}
-
-document.getElementById('hoursForm').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const dateVal = document.getElementById('hoursDate').value;
-  const gvt = parseFloat(document.getElementById('hoursGvt').value) || 0;
-  const ai = parseFloat(document.getElementById('hoursAi').value) || 0;
-  if (!dateVal) return;
-  state.hours[dateVal] = { date: dateVal, gvt, ai };
-  saveState(); renderHours(); renderStats();
-  e.target.reset();
-});
-
-/* ===================== PLAN VS ACTUAL ===================== */
-function renderRoadmap() {
-  const container = document.getElementById('roadmapList');
-  container.innerHTML = '';
-  ROADMAP.forEach(period => {
-    const card = document.createElement('div');
-    card.className = 'period-card';
-    card.dataset.id = period.id;
-
-    const head = document.createElement('div');
-    head.className = 'period-head';
-    head.innerHTML = `<div><h3>${period.label} — ${period.theme}</h3><span class="period-meta">${period.dates}</span></div>`;
-    head.addEventListener('click', () => card.classList.toggle('open'));
-
-    const body = document.createElement('div');
-    body.className = 'period-body';
-    const cols = document.createElement('div');
-    cols.className = 'period-cols';
-
-    const plannedCol = document.createElement('div');
-    plannedCol.className = 'period-col';
-    plannedCol.innerHTML = `<h4>Planned</h4>`;
-    period.planned.forEach((itemText, i) => {
-      const key = `${period.id}-${i}`;
-      const status = state.planStatus[key] || 'pending';
-      const row = document.createElement('div');
-      row.className = 'planned-item';
-      row.innerHTML = `
-        <span>${escapeHtml(itemText)}</span>
-        <select class="status-select status-${status}">
-          <option value="pending" ${status==='pending'?'selected':''}>Pending</option>
-          <option value="on-track" ${status==='on-track'?'selected':''}>On track</option>
-          <option value="ahead" ${status==='ahead'?'selected':''}>Ahead</option>
-          <option value="deferred" ${status==='deferred'?'selected':''}>Deferred</option>
-          <option value="done" ${status==='done'?'selected':''}>Done</option>
-        </select>`;
-      const select = row.querySelector('select');
-      select.addEventListener('change', () => {
-        state.planStatus[key] = select.value;
-        select.className = `status-select status-${select.value}`;
-        saveState();
+  Object.entries(state.hours)
+    .sort((a, b) => (b[1].date || '').localeCompare(a[1].date || ''))
+    .forEach(([key, e]) => {
+      const total = (Number(e.gvt) || 0) + (Number(e.ai) || 0);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${escapeHtml(e.label || e.date)}</td><td>${e.gvt}</td><td>${e.ai}</td><td>${total}</td>
+        <td><button class="btn-text danger">Delete</button></td>`;
+      tr.querySelector('button').addEventListener('click', () => {
+        if (confirm('Delete this hours entry?')) {
+          delete state.hours[key];
+          saveState(); renderHours(); renderStats();
+        }
       });
-      plannedCol.appendChild(row);
+      tbody.appendChild(tr);
     });
-
-    const actualCol = document.createElement('div');
-    actualCol.className = 'period-col';
-    actualCol.innerHTML = `<h4>Actual / Current Status</h4>
-      <textarea class="actual-notes" placeholder="What actually happened this period...">${escapeHtml(state.actualNotes[period.id] || '')}</textarea>`;
-    actualCol.querySelector('textarea').addEventListener('blur', (ev) => {
-      state.actualNotes[period.id] = ev.target.value; saveState();
-    });
-
-    cols.appendChild(plannedCol);
-    cols.appendChild(actualCol);
-    const targetBox = document.createElement('div');
-    targetBox.className = 'target-box';
-    targetBox.innerHTML = `<strong>End-of-period target:</strong> ${escapeHtml(period.target)}`;
-    body.appendChild(cols);
-    body.appendChild(targetBox);
-    card.appendChild(head);
-    card.appendChild(body);
-    container.appendChild(card);
-  });
-
-  const d = getSprintDay();
-  const pid = d <= 7 ? 'w1' : d <= 14 ? 'w2' : d <= 21 ? 'w3' : d <= 28 ? 'w4' : d <= 56 ? 'm2' : 'm3';
-  const open = container.querySelector(`.period-card[data-id="${pid}"]`);
-  if (open) open.classList.add('open');
 }
 
-/* ===================== REVENUE TARGETS ===================== */
-function renderRevenue() {
-  const tbody = document.getElementById('revenueTableBody');
-  tbody.innerHTML = '';
-  REVENUE_TARGETS.forEach(r => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${r.month}</td><td>${r.original}</td><td>${r.revised}</td><td>${r.status}</td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-/* ===================== PRODUCT CATALOG ===================== */
-function renderProducts() {
-  const tbody = document.getElementById('productTableBody');
-  tbody.innerHTML = '';
-  document.getElementById('catalogCountBadge').textContent = state.products.length;
-  state.products.forEach(p => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td contenteditable="true" class="edit-name">${escapeHtml(p.name)}</td>
-      <td contenteditable="true" class="edit-price">${escapeHtml(p.price || '')}</td>
-      <td><select class="status-pick">
-        <option value="live" ${p.status==='live'?'selected':''}>Live</option>
-        <option value="draft" ${p.status==='draft'?'selected':''}>Draft</option>
-      </select></td>
-      <td><button class="btn-text danger">Delete</button></td>`;
-    tr.querySelector('.edit-name').addEventListener('blur', e => { p.name = e.target.textContent.trim() || p.name; saveState(); });
-    tr.querySelector('.edit-price').addEventListener('blur', e => { p.price = e.target.textContent.trim(); saveState(); });
-    tr.querySelector('.status-pick').addEventListener('change', e => { p.status = e.target.value; saveState(); });
-    tr.querySelector('button').addEventListener('click', () => {
-      if (confirm(`Delete "${p.name}"?`)) {
-        state.products = state.products.filter(x => x.id !== p.id);
-        saveState(); renderProducts(); renderStats();
-      }
-    });
-    tbody.appendChild(tr);
-  });
-}
-
-document.getElementById('productForm').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const name = document.getElementById('productName').value.trim();
-  const price = document.getElementById('productPrice').value.trim();
-  const status = document.getElementById('productStatus').value;
-  if (!name) return;
-  state.products.push({ id: uid('p'), name, price, status });
-  saveState(); renderProducts(); renderStats();
-  e.target.reset();
-});
-
-/* ===================== DECISIONS LOG ===================== */
 function renderDecisions() {
   const list = document.getElementById('decisionList');
   list.innerHTML = '';
@@ -744,7 +428,7 @@ function renderDecisions() {
       <span class="decision-date">${formatDisplayDate(d.date)}</span>
       <span class="decision-text" contenteditable="true">${escapeHtml(d.text)}</span>
       <button class="btn-text danger">Delete</button>`;
-    li.querySelector('.decision-text').addEventListener('blur', e => {
+    li.querySelector('.decision-text').addEventListener('blur', (e) => {
       const t = e.target.textContent.trim();
       if (t) { d.text = t; saveState(); } else { e.target.textContent = d.text; }
     });
@@ -758,41 +442,251 @@ function renderDecisions() {
   });
 }
 
-document.getElementById('decisionForm').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const date = document.getElementById('decisionDate').value;
-  const text = document.getElementById('decisionText').value.trim();
-  if (!date || !text) return;
-  state.decisions.push({ id: uid('k'), date, text });
-  saveState(); renderDecisions();
-  e.target.reset();
-  document.getElementById('decisionDate').value = formatLocalDate(todayLocal());
-});
-
-/* ===================== UTIL ===================== */
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str ?? '';
-  return div.innerHTML;
+function renderProducts() {
+  const tbody = document.getElementById('productTableBody');
+  tbody.innerHTML = '';
+  document.getElementById('catalogCountBadge').textContent = state.products.length;
+  state.products.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td contenteditable="true" class="edit-name">${escapeHtml(p.name)}</td>
+      <td contenteditable="true" class="edit-price">${escapeHtml(p.price || '')}</td>
+      <td><select>
+        <option value="live" ${p.status === 'live' ? 'selected' : ''}>Live</option>
+        <option value="draft" ${p.status === 'draft' ? 'selected' : ''}>Draft</option>
+      </select></td>
+      <td><button class="btn-text danger">Delete</button></td>`;
+    tr.querySelector('.edit-name').addEventListener('blur', e => { p.name = e.target.textContent.trim() || p.name; saveState(); });
+    tr.querySelector('.edit-price').addEventListener('blur', e => { p.price = e.target.textContent.trim(); saveState(); });
+    tr.querySelector('select').addEventListener('change', e => { p.status = e.target.value; saveState(); renderStats(); });
+    tr.querySelector('button').addEventListener('click', () => {
+      if (confirm(`Delete "${p.name}"?`)) {
+        state.products = state.products.filter(x => x.id !== p.id);
+        saveState(); renderProducts(); renderStats();
+      }
+    });
+    tbody.appendChild(tr);
+  });
 }
-function formatDisplayDate(iso) {
-  return parseLocalDate(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+
+function renderExtras() {
+  const list = document.getElementById('extrasList');
+  list.innerHTML = '';
+  state.additionalDeliverables.forEach(item => {
+    const li = document.createElement('li');
+    li.className = item.done ? 'done' : '';
+    li.innerHTML = `
+      <input type="checkbox" ${item.done ? 'checked' : ''}>
+      <span class="delv-text" contenteditable="true">${escapeHtml(item.text)}</span>
+      <button class="btn-text danger">Delete</button>`;
+    li.querySelector('input').addEventListener('change', (e) => {
+      item.done = e.target.checked;
+      saveState(); renderExtras();
+    });
+    li.querySelector('.delv-text').addEventListener('blur', (e) => {
+      const t = e.target.textContent.trim();
+      if (t) { item.text = t; saveState(); } else { e.target.textContent = item.text; }
+    });
+    li.querySelector('button').addEventListener('click', () => {
+      if (confirm('Delete this item?')) {
+        state.additionalDeliverables = state.additionalDeliverables.filter(d => d.id !== item.id);
+        saveState(); renderExtras();
+      }
+    });
+    list.appendChild(li);
+  });
 }
 
-/* ===================== INIT ===================== */
-function init() {
+/* ===================== RENDER: ARCHIVE ===================== */
+function renderArchive() {
+  document.getElementById('archiveAssessment').textContent = state.archive.assessment;
+
+  const phases = document.getElementById('archivePhases');
+  phases.innerHTML = '';
+  state.archive.phases.forEach(ph => {
+    const doneCount = ph.items.filter(i => i.status === 'done').length;
+    const wrap = document.createElement('div');
+    wrap.className = 'archive-phase';
+    wrap.innerHTML = `
+      <div class="archive-phase-head"><span>${escapeHtml(ph.label)} — ${escapeHtml(ph.theme)}</span><span>${doneCount}/${ph.items.length} done</span></div>
+      <ul class="archive-items"></ul>`;
+    const ul = wrap.querySelector('ul');
+    ph.items.forEach(it => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="st-chip st-${it.status}">${it.status}</span>
+        <span>${escapeHtml(it.text)}${it.note ? ` <span class="archive-note">— ${escapeHtml(it.note)}</span>` : ''}</span>`;
+      ul.appendChild(li);
+    });
+    phases.appendChild(wrap);
+  });
+
+  const roadmap = document.getElementById('archiveRoadmap');
+  roadmap.innerHTML = state.archive.roadmap.map(r => `
+    <div class="roadmap-row">
+      <h4>${escapeHtml(r.label)} — ${escapeHtml(r.theme)} <span class="archive-note">(${escapeHtml(r.dates)})</span></h4>
+      <p><span class="lbl">Planned:</span> ${escapeHtml(r.target)}</p>
+      <p><span class="lbl">Actual:</span> ${escapeHtml(r.actual)}</p>
+    </div>`).join('');
+}
+
+/* ===================== RENDER ALL ===================== */
+function renderAll() {
+  renderHeader();
+  renderToday();
+  renderStats();
+  renderBlocks();
+  renderCheckpoints();
+  renderChannels();
+  buildUtm();
+  renderRevenue();
+  renderHours();
+  renderDecisions();
+  renderProducts();
+  renderExtras();
+  renderArchive();
+}
+
+/* ===================== STATIC EVENT BINDINGS ===================== */
+function bindForms() {
+  document.getElementById('hoursForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const dateVal = document.getElementById('hoursDate').value;
+    if (!dateVal) return;
+    // Keyed by date: re-saving a date replaces the entry, never duplicates
+    state.hours[dateVal] = {
+      date: dateVal,
+      gvt: parseFloat(document.getElementById('hoursGvt').value) || 0,
+      ai: parseFloat(document.getElementById('hoursAi').value) || 0
+    };
+    saveState(); renderHours(); renderStats();
+    e.target.reset();
+    document.getElementById('hoursDate').value = formatLocalDate(todayLocal());
+  });
+
+  document.getElementById('decisionForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const date = document.getElementById('decisionDate').value;
+    const text = document.getElementById('decisionText').value.trim();
+    if (!date || !text) return;
+    state.decisions.push({ id: uid('k'), date, text });
+    saveState(); renderDecisions();
+    e.target.reset();
+    document.getElementById('decisionDate').value = formatLocalDate(todayLocal());
+  });
+
+  document.getElementById('productForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('productName').value.trim();
+    if (!name) return;
+    state.products.push({
+      id: uid('p'), name,
+      price: document.getElementById('productPrice').value.trim(),
+      status: document.getElementById('productStatus').value
+    });
+    saveState(); renderProducts(); renderStats();
+    e.target.reset();
+  });
+
+  document.getElementById('extraForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = document.getElementById('extraText').value.trim();
+    if (!text) return;
+    state.additionalDeliverables.push({ id: uid('d'), text, done: false });
+    saveState(); renderExtras();
+    e.target.reset();
+  });
+
+  ['utmChannel', 'utmCampaign', 'utmContent', 'utmPath'].forEach(id => {
+    document.getElementById(id).addEventListener('input', buildUtm);
+    document.getElementById(id).addEventListener('change', buildUtm);
+  });
+  document.getElementById('utmCopy').addEventListener('click', async () => {
+    const text = document.getElementById('utmResult').textContent;
+    if (!text.startsWith('http')) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      document.getElementById('utmCopy').textContent = 'Copied ✓';
+      setTimeout(() => { document.getElementById('utmCopy').textContent = 'Copy'; }, 1500);
+    } catch { prompt('Copy the link:', text); }
+  });
+
+  document.getElementById('revBlock').addEventListener('click', () => {
+    const val = prompt('Revenue to date (from Shopify actuals), number only:', state.revenueToDate);
+    if (val === null) return;
+    const num = parseFloat(val);
+    if (!isNaN(num) && num >= 0) { state.revenueToDate = num; saveState(); renderHeader(); }
+  });
+
+  // Settings modal
+  const modal = document.getElementById('settingsModal');
+  document.getElementById('settingsBtn').addEventListener('click', () => {
+    document.getElementById('syncKeyInput').value = syncKey();
+    document.getElementById('baseUrlInput').value = state.settings.baseUrl || '';
+    modal.hidden = false;
+  });
+  document.getElementById('syncPill').addEventListener('click', () => {
+    if (sync.mode !== 'synced') document.getElementById('settingsBtn').click();
+  });
+  document.getElementById('settingsClose').addEventListener('click', () => { modal.hidden = true; });
+  document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+    localStorage.setItem(LS_SYNC_KEY, document.getElementById('syncKeyInput').value.trim());
+    const base = document.getElementById('baseUrlInput').value.trim();
+    if (base) state.settings.baseUrl = base;
+    saveState(); buildUtm();
+    modal.hidden = true;
+    initSync();
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `gvt-cc-backup-${formatLocalDate(todayLocal())}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  document.getElementById('importFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const imported = JSON.parse(reader.result);
+        if (imported.schema !== 2) { alert('Not a valid GVT CC v2 backup file.'); return; }
+        if (!confirm('Replace ALL current data with this backup?')) return;
+        state = imported;
+        saveState(); renderAll();
+      } catch { alert('Could not read that file as JSON.'); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+}
+
+/* ===================== BOOT ===================== */
+(async function boot() {
+  const raw = localStorage.getItem(LS_KEY);
+  if (raw) {
+    try { state = JSON.parse(raw); } catch { state = null; }
+  }
+  if (!state) {
+    const res = await fetch('data.json');
+    if (!res.ok) {
+      document.body.innerHTML = '<p style="padding:40px;font-family:sans-serif">Could not load data.json — check the deploy.</p>';
+      return;
+    }
+    state = await res.json();
+    importLegacy(state);
+    state.updatedAt = new Date().toISOString();
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+  }
+
   const today = formatLocalDate(todayLocal());
   document.getElementById('hoursDate').value = today;
   document.getElementById('decisionDate').value = today;
-  renderDayCounter();
-  renderStats();
-  renderPlanPhases();
-  renderAdditionalDeliverables();
-  renderHours();
-  renderRoadmap();
-  renderRevenue();
-  renderProducts();
-  renderDecisions();
-}
 
-init();
+  bindForms();
+  renderAll();
+  initSync();
+})();

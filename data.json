@@ -1,0 +1,274 @@
+{
+  "schema": 2,
+  "updatedAt": "2026-07-24T00:00:00.000Z",
+  "settings": { "baseUrl": "https://goodvibestee.com" },
+  "revenueToDate": 0,
+
+  "hours": {
+    "2026-06-29-backfill": { "date": "2026-06-29", "label": "Backfill (Day 1–22 prior hours)", "gvt": 43, "ai": 9 },
+    "2026-06-28": { "date": "2026-06-28", "label": "Backfill — week of Jun 22-28", "gvt": 40, "ai": 0 },
+    "2026-07-05": { "date": "2026-07-05", "label": "Backfill — week of Jun 29-Jul 5", "gvt": 20, "ai": 0 },
+    "2026-07-06": { "date": "2026-07-06", "gvt": 5, "ai": 0 },
+    "2026-07-07": { "date": "2026-07-07", "gvt": 4, "ai": 0 },
+    "2026-07-11": { "date": "2026-07-11", "gvt": 3, "ai": 0 },
+    "2026-07-12": { "date": "2026-07-12", "gvt": 3, "ai": 0 },
+    "2026-07-13": { "date": "2026-07-13", "gvt": 3, "ai": 0 }
+  },
+
+  "products": [
+    { "id": "p1", "name": "My Dog Is My Therapist Unisex Tee", "price": "29.99", "status": "live" },
+    { "id": "p2", "name": "Good Vibes Only Unisex Tee", "price": "29.99", "status": "live" },
+    { "id": "p3", "name": "My Dog Has Better Manners Women's Tee", "price": "31.99", "status": "live" },
+    { "id": "p4", "name": "Mom and Her Dog Women's Tee", "price": "31.99", "status": "live" },
+    { "id": "p5", "name": "My Furry BFF Hoodie", "price": "", "status": "live" },
+    { "id": "p6", "name": "My Furry BFF Women's Tee", "price": "31.99", "status": "live" },
+    { "id": "p7", "name": "My Furry BFF Unisex Tee", "price": "29.99", "status": "live" },
+    { "id": "p8", "name": "Top Dog Fur Force Unisex Tee", "price": "29.99", "status": "live" },
+    { "id": "p9", "name": "Daisy by Daisy Unisex Tee", "price": "29.99", "status": "live" },
+    { "id": "p10", "name": "The Cuddle Dealer Unisex Tee", "price": "29.99", "status": "live" },
+    { "id": "p11", "name": "Love Has Four Paws Women's Tee", "price": "31.99", "status": "live" },
+    { "id": "p12", "name": "Certified Mutt Unisex Tee", "price": "29.99", "status": "live" },
+    { "id": "p13", "name": "My Dog Is The Best Breed Unisex Tee", "price": "29.99", "status": "live" },
+    { "id": "p14", "name": "Freedom. Found On Four Paws. Unisex Tee", "price": "29.99", "status": "live" },
+    { "id": "p15", "name": "Dog Person Definition Women's Tee", "price": "31.99", "status": "live" },
+    { "id": "p16", "name": "Home Collection — Paw & Hand Women's Tee", "price": "31.99", "status": "live" },
+    { "id": "p17", "name": "Border Collie Breed Study Unisex Tee", "price": "", "status": "live" },
+    { "id": "p18", "name": "Golden Retriever Breed Study Women's Tee", "price": "", "status": "live" },
+    { "id": "p19", "name": "Walk Ready #2 Women's Tee", "price": "", "status": "live" },
+    { "id": "p20", "name": "Corgi Breed Study Women's Tee", "price": "", "status": "live" },
+    { "id": "p21", "name": "\"Borrowed.\" Confessions Tee", "price": "", "status": "live" },
+    { "id": "p22", "name": "\"I Can Explain.\" Confessions Tee", "price": "", "status": "live" },
+    { "id": "p23", "name": "Unnamed SKU — rename me (1 of 5)", "price": "", "status": "live" },
+    { "id": "p24", "name": "Unnamed SKU — rename me (2 of 5)", "price": "", "status": "live" },
+    { "id": "p25", "name": "Unnamed SKU — rename me (3 of 5)", "price": "", "status": "live" },
+    { "id": "p26", "name": "Unnamed SKU — rename me (4 of 5)", "price": "", "status": "live" },
+    { "id": "p27", "name": "Unnamed SKU — rename me (5 of 5)", "price": "", "status": "live" }
+  ],
+
+  "decisions": [
+    { "id": "k1", "date": "2026-06-08", "text": "Day 1 reset, sprint officially begins" },
+    { "id": "k2", "date": "2026-06-18", "text": "Printify product purge discovered during dormancy recovery — major infrastructure blocker, consumed most of session" },
+    { "id": "k3", "date": "2026-06-18", "text": "Decided \"Keep individual product details\" only protects existing connections, not new publishes — learned the hard way after duplicate products created" },
+    { "id": "k4", "date": "2026-06-25", "text": "Naming convention locked — [Design Name] Unisex Tee / Women's Tee / Hoodie" },
+    { "id": "k5", "date": "2026-06-25", "text": "Hero image direction — 70% candid editorial" },
+    { "id": "k6", "date": "2026-06-26", "text": "Shopify upgraded to Basic plan ($39/mo), 4 new products published" },
+    { "id": "k7", "date": "2026-06-27", "text": "Month 3 revenue target revised down from $5K–$8K to $1,500–$3,500" },
+    { "id": "k8", "date": "2026-06-29", "text": "Free shipping bug fixed — Printify shipping profile required manual product assignment, not automatic" },
+    { "id": "k9", "date": "2026-06-29", "text": "Klaviyo selected for email over Mailchimp (no native Shopify integration) and Privy (low familiarity) — chosen for Shopify integration depth" },
+    { "id": "k10", "date": "2026-06-29", "text": "Ifscarlet_KA intro reel posted — first major external touchpoint, 34 visitors within hours of posting" },
+    { "id": "k11", "date": "2026-06-30", "text": "Command Center rebuild moved from chat-interface artifacts to Claude Code for proper dev environment" },
+    { "id": "k12", "date": "2026-07-07", "text": "New series launched: Breed Study — fine-art single-color breed portraits, pivoting from font/icon series. Breed order: mixed, no strict audience-priority sequencing." },
+    { "id": "k13", "date": "2026-07-07", "text": "Popup offer A/B test launched — testing whether no-coupon positioning was suppressing signups (0 organic signups / 80 views prior to test)." },
+    { "id": "k14", "date": "2026-07-07", "text": "@goodvibes_tee IG activity tracked as individual deliverable entries, not a structured counter, to keep CC maintenance light." },
+    { "id": "k15", "date": "2026-07-10", "text": "Sprint review conducted Day 33 (Jul 10, Week 5). Month 1 revenue target ($2,500-$4,000 cumulative) missed — actual revenue $0. Root causes identified: Ifscarlet_KA warm audience under-utilized (1 touch in 5 weeks vs. planned Wed/Sat cadence), Command Center/infrastructure work consumed disproportionate time relative to direct GVT revenue impact, Etsy and TikTok Shop channels not launched as planned. Catalog build (22 products, 3 series) and brand identity execution assessed as strong; sales channel activation assessed as the clear gap." },
+    { "id": "k16", "date": "2026-07-10", "text": "Week 6 objective locked: break the zero-sales streak by end of week (target Jul 17). Action plan: (1) Ifscarlet_KA minimum 3 posts/week resumed as top priority, (2) no further CC/tooling work unless something breaks, (3) monitor popup A/B test mid-week, act on winning variant, (4) @goodvibes_tee keep/abandon decision moved up to ~Jul 17 (from original 3-week window) given weak signal so far." },
+    { "id": "k17", "date": "2026-07-13", "text": "Golden Retriever reel (couch/coffee scene) underperformed on both accounts: 20 views/dead on @goodvibes_tee (60/40 follower split vs normal 80%+ non-follower), ~half normal reach on Ifscarlet_KA. Account status clean, no copyright flag. Root cause assessed as content style — static, symmetric, direct-gaze, overly polished AI shot reads as ad/staged and gets scrolled past, vs. motion/candid shots (walking, mid-action) which perform well on both accounts. Fix: favor motion and imperfection over posed symmetry going forward." },
+    { "id": "k18", "date": "2026-07-13", "text": "Popup A/B test, ~1 week in: zero signups both variants (Early Access vs 15% Discount). Continuing to monitor." },
+    { "id": "k19", "date": "2026-07-13", "text": "@goodvibes_tee decision: 2 more posts (motion/candid style) as final test. Pass = any real engagement (non-self/friend like or comment, or Shopify IG referral click). Fail on both = abandon and restart fresh, decide reused vs new handle separately." },
+    { "id": "k20", "date": "2026-07-19", "text": "@goodvibes_tee \"I Can Explain\" colorway carousel reel: 132 views in 20 min vs. 22 views over 4 days on prior post — real signal. Likely mix of: motion/candid format, strong hook overlay gag (\"still not sorry\"), and/or early algorithmic velocity. Needed confirmed real engagement before counting toward keep/abandon criteria." },
+    { "id": "k21", "date": "2026-07-19", "text": "Design QA rule locked: vary AI lifestyle model dog breed away from tan/curly-coated breeds (cavapoo/goldendoodle) in future lifestyle image gens. Reason: visual overlap between model dog and illustrated print dog reads as \"portrait of the shirt\" rather than universal design — undermines broad-appeal positioning." },
+    { "id": "k22", "date": "2026-07-19", "text": "Printify: Global Fulfillment Eligible toggle = OFF for GVT. US-only marketing scope makes global fulfillment irrelevant; toggle was unnecessarily restricting color variant selection." },
+    { "id": "k23", "date": "2026-07-19", "text": "Meta ad competitive landscape assessed: majority of dog-apparel POD ads are low-quality/brand-new accounts running generic clipart designs with urgency tactics. Pattern assessed as unprofitable ad churn (weak unit economics for cold traffic + discounting, no LTV infrastructure). GVT decision: do not imitate. GVT's edge is design quality, brand voice, and warm audience — competing on ad spend volume alone is a losing game for GVT." },
+    { "id": "k24", "date": "2026-07-24", "text": "Etsy officially DROPPED (was: deferred to Month 2). Channel strategy narrowed to Shopify + Meta ads + IG organic + TikTok + email." },
+    { "id": "k25", "date": "2026-07-24", "text": "Real product photography officially DROPPED as a deliberate decision — AI-generated photography adopted as the standard for all lifestyle/product imagery. Not an open item." },
+    { "id": "k26", "date": "2026-07-24", "text": "@goodvibes_tee keep/abandon test CONCLUDED. Verdict: dormant/bot-follower legacy account (3,223 followers, near-zero organic engagement, follow/unfollow-service origin ~3 years ago). Organic growth confirmed not revivable. Retained strictly as Meta ad-hosting account — ads drive to the website, not to this account's audience. Organic posting cadence here is ended, permanently." },
+    { "id": "k27", "date": "2026-07-24", "text": "New GVT Instagram account launching in parallel — separate from @goodvibes_tee — as the organic growth channel." },
+    { "id": "k28", "date": "2026-07-24", "text": "FIRST-HALF ASSESSMENT (Day 1–46): Strong infrastructure — 27 SKUs across 3 design series, working Shopify/Printify pipeline, Klaviyo A/B test live — but $0 revenue and no completed hard demand test. Root cause: effort concentrated in supply-side work (catalog/production) over demand-side testing (paid acquisition, warm-audience hard-sell tests). Second half (Day 47–90) reorients entirely around demand testing." },
+    { "id": "k29", "date": "2026-07-24", "text": "Catalog expansion FROZEN until Test Week 1 signal justifies what to build next. No new SKUs without demand data." },
+    { "id": "k30", "date": "2026-07-24", "text": "Second-half operating model adopted: weekly Monday checkpoint (Day 57–90) reviewing actual per-channel conversion/click data with a scale/iterate/kill verdict per channel. This is the primary operating ritual of the second half." }
+  ],
+
+  "additionalDeliverables": [
+    { "id": "d1", "text": "4 new products published (reached 16 total)", "done": true },
+    { "id": "d2", "text": "Free shipping bug fixed (Printify shipping profile assignment)", "done": true },
+    { "id": "d3", "text": "Klaviyo selected as email platform", "done": true },
+    { "id": "d4", "text": "Naming convention locked: [Design Name] Unisex Tee / Women's Tee / Hoodie", "done": true },
+    { "id": "d5", "text": "Hero image direction set: 70% candid editorial", "done": true },
+    { "id": "d6", "text": "Ifscarlet_KA intro reel posted", "done": true },
+    { "id": "d7", "text": "Klaviyo popup design + copy", "done": true },
+    { "id": "d8", "text": "Klaviyo welcome flow (2–3 emails)", "done": false },
+    { "id": "d9", "text": "Collections rename + nav wiring (Unisex Tees / Women's Tees)", "done": false },
+    { "id": "d10", "text": "Size chart HTML fix on legacy products", "done": false },
+    { "id": "d11", "text": "Coffee Can Wait Women's Tee decision", "done": false },
+    { "id": "d12", "text": "Zoho email alias setup (mail@goodvibestee.com)", "done": false },
+    { "id": "d13", "text": "Border Collie Breed Study Unisex Tee — designed, published to Shopify", "done": true },
+    { "id": "d14", "text": "Popup A/B test live: Early Access vs. 15% Discount", "done": true },
+    { "id": "d15", "text": "@goodvibes_tee Border Collie post published", "done": true },
+    { "id": "d16", "text": "Full sprint review conducted — Day 33", "done": true },
+    { "id": "d17", "text": "GVT Command Center built and deployed to Netlify", "done": true },
+    { "id": "d18", "text": "Golden Retriever Breed Study Women's Tee — published to Shopify", "done": true },
+    { "id": "d19", "text": "Walk Ready #2 Women's Tee — published to Shopify", "done": true },
+    { "id": "d20", "text": "Corgi Breed Study Women's Tee — published to Shopify, IG reel + caption prepared", "done": true },
+    { "id": "d21", "text": "@goodvibes_tee Golden Retriever reel published", "done": true },
+    { "id": "d22", "text": "Golden Retriever reel posted to Ifscarlet_KA", "done": true },
+    { "id": "d23", "text": "Ifscarlet_KA 3x/week cadence maintained since Jul 10", "done": true },
+    { "id": "d24", "text": "\"Borrowed.\" Confessions Series — product + copy finalized, published to Shopify", "done": true },
+    { "id": "d25", "text": "\"I Can Explain.\" Confessions Series — product + copy finalized, published to Shopify", "done": true }
+  ],
+
+  "channels": [
+    { "id": "ch-meta", "name": "Meta Ads", "role": "Paid acquisition — hosted on @goodvibes_tee ad account, creative drives to website", "utmSource": "meta", "utmMedium": "paid", "status": "launching" },
+    { "id": "ch-ka", "name": "@ifscarlet_KA", "role": "Warm-audience organic — 3x/week cadence", "utmSource": "ig-ka", "utmMedium": "organic", "status": "active" },
+    { "id": "ch-gvtig", "name": "GVT IG (new)", "role": "Owned organic growth — new account, separate from ad-hosting", "utmSource": "ig-gvt", "utmMedium": "organic", "status": "launching" },
+    { "id": "ch-tiktok", "name": "TikTok", "role": "Organic first, paid later — Business account + pixel in Day 48–49 block", "utmSource": "tiktok", "utmMedium": "organic", "status": "launching" },
+    { "id": "ch-email", "name": "Klaviyo Email", "role": "Email capture + flows — popup A/B live", "utmSource": "klaviyo", "utmMedium": "email", "status": "active" },
+    { "id": "ch-legacy", "name": "@goodvibes_tee (legacy)", "role": "AD-HOSTING ONLY — do not post organically. Bot-follower legacy account retained solely to run Meta ads.", "utmSource": "", "utmMedium": "", "status": "repurposed" }
+  ],
+
+  "blocks": [
+    {
+      "id": "blk-47", "label": "Day 47 — Demand Infrastructure", "dates": "Fri Jul 24", "startDay": 47, "endDay": 47,
+      "items": [
+        { "id": "b47-1", "text": "Meta Pixel + Conversions API verified on Shopify", "done": false },
+        { "id": "b47-2", "text": "UTM convention set across all channels", "done": false },
+        { "id": "b47-3", "text": "Facebook Business Page + ad account created", "done": false },
+        { "id": "b47-4", "text": "New GVT IG account created + seeded", "done": false },
+        { "id": "b47-5", "text": "Klaviyo popup diagnosed (impressions vs. sessions)", "done": false }
+      ]
+    },
+    {
+      "id": "blk-4849", "label": "Day 48–49 — Creative & Setup", "dates": "Sat–Sun Jul 25–26", "startDay": 48, "endDay": 49,
+      "items": [
+        { "id": "b48-1", "text": "Ad creative drafted for top 2–3 signal SKUs", "done": false },
+        { "id": "b48-2", "text": "TikTok Business account + pixel installed", "done": false },
+        { "id": "b48-3", "text": "Hard-CTA @ifscarlet_KA post drafted with isolated UTM", "done": false }
+      ]
+    },
+    {
+      "id": "blk-tw1", "label": "Test Week 1 — First Hard Demand Test", "dates": "Mon Jul 27 – Sun Aug 2 (Day 50–56)", "startDay": 50, "endDay": 56,
+      "items": [
+        { "id": "tw1-1", "text": "Meta ad campaign live ($200–500 budget, 5–7 days)", "done": false },
+        { "id": "tw1-2", "text": "Hard-CTA test posted on @ifscarlet_KA", "done": false },
+        { "id": "tw1-3", "text": "TikTok organic cadence started", "done": false },
+        { "id": "tw1-4", "text": "New GVT IG seed posting underway", "done": false }
+      ]
+    }
+  ],
+
+  "checkpoints": [
+    { "id": "cp-57", "label": "Checkpoint 1", "date": "2026-08-03", "day": 57, "done": false, "summary": "",
+      "channels": [
+        { "id": "r571", "name": "Meta Ads", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r572", "name": "@ifscarlet_KA", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r573", "name": "GVT IG (new)", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r574", "name": "TikTok", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r575", "name": "Klaviyo Email", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" }
+      ] },
+    { "id": "cp-64", "label": "Checkpoint 2", "date": "2026-08-10", "day": 64, "done": false, "summary": "",
+      "channels": [
+        { "id": "r641", "name": "Meta Ads", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r642", "name": "@ifscarlet_KA", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r643", "name": "GVT IG (new)", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r644", "name": "TikTok", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r645", "name": "Klaviyo Email", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" }
+      ] },
+    { "id": "cp-71", "label": "Checkpoint 3", "date": "2026-08-17", "day": 71, "done": false, "summary": "",
+      "channels": [
+        { "id": "r711", "name": "Meta Ads", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r712", "name": "@ifscarlet_KA", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r713", "name": "GVT IG (new)", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r714", "name": "TikTok", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r715", "name": "Klaviyo Email", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" }
+      ] },
+    { "id": "cp-78", "label": "Checkpoint 4", "date": "2026-08-24", "day": 78, "done": false, "summary": "",
+      "channels": [
+        { "id": "r781", "name": "Meta Ads", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r782", "name": "@ifscarlet_KA", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r783", "name": "GVT IG (new)", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r784", "name": "TikTok", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r785", "name": "Klaviyo Email", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" }
+      ] },
+    { "id": "cp-85", "label": "Checkpoint 5", "date": "2026-08-31", "day": 85, "done": false, "summary": "",
+      "channels": [
+        { "id": "r851", "name": "Meta Ads", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r852", "name": "@ifscarlet_KA", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r853", "name": "GVT IG (new)", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r854", "name": "TikTok", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r855", "name": "Klaviyo Email", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" }
+      ] },
+    { "id": "cp-90", "label": "Day 90 — Sprint Close-Out", "date": "2026-09-05", "day": 90, "done": false, "summary": "",
+      "channels": [
+        { "id": "r901", "name": "Meta Ads", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r902", "name": "@ifscarlet_KA", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r903", "name": "GVT IG (new)", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r904", "name": "TikTok", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" },
+        { "id": "r905", "name": "Klaviyo Email", "spend": "", "clicks": "", "sessions": "", "conversions": "", "revenue": "", "verdict": "pending", "notes": "" }
+      ] }
+  ],
+
+  "rules": [
+    "Ad kill rule: ROAS < 1.5 after 5 days + $50 spend = kill immediately",
+    "Product kill rule: <2 sales in 30 days post-listing = archive",
+    "Audience broadening trigger: 50 total sales = broaden beyond KA niche",
+    "Quality override: production judgment beats cost savings, always"
+  ],
+
+  "revenueTargets": [
+    { "month": "Month 1 (end of Week 4)", "original": "$1,500 – $3,500", "revised": "Unchanged", "status": "Missed — $0 actual" },
+    { "month": "Month 2 (Jul 6 – Aug 2)", "original": "$3,000 – $5,500", "revised": "Unchanged", "status": "In progress — $0 so far" },
+    { "month": "Month 3 (Aug 3 – 30)", "original": "$5,000 – $8,000", "revised": "$1,500 – $3,500 (revised down ~Day 20)", "status": "Upcoming" }
+  ],
+
+  "archive": {
+    "assessment": "Day 1–46 produced strong infrastructure — 27 SKUs across 3 design series, a working Shopify/Printify pipeline, Klaviyo A/B test live — but $0 revenue and no completed hard demand test. Root cause: effort concentrated in supply-side work (catalog, production, tooling) rather than demand-side testing (paid acquisition, warm-audience hard-sell tests). The second half corrects that: everything below is preserved as accurate history; the operating system above is built around weekly demand checkpoints.",
+    "phases": [
+      { "id": "w1", "label": "Week 1", "theme": "Foundation", "items": [
+        { "id": "w1-0", "text": "Shopify store rebuilt with new brand identity", "status": "done", "note": "" },
+        { "id": "w1-1", "text": "Brand palette/typography locked", "status": "done", "note": "" },
+        { "id": "w1-2", "text": "12–15 initial designs created", "status": "done", "note": "" },
+        { "id": "w1-3", "text": "Samples ordered from Printify", "status": "done", "note": "" }
+      ] },
+      { "id": "w2", "label": "Week 2", "theme": "Channel Setup + IG Test", "items": [
+        { "id": "w2-0", "text": "First 10 listings published on Shopify", "status": "done", "note": "" },
+        { "id": "w2-1", "text": "Etsy shop created, 10 listings", "status": "dropped", "note": "Officially dropped Day 47 — channel strategy narrowed" },
+        { "id": "w2-2", "text": "TikTok Shop application submitted", "status": "carried", "note": "Rolled into second-half TikTok track" },
+        { "id": "w2-3", "text": "Email capture installed (Klaviyo)", "status": "done", "note": "" },
+        { "id": "w2-4", "text": "IG test: 3 posts/7 days on @goodvibes_tee", "status": "done", "note": "" },
+        { "id": "w2-5", "text": "$10 paid boost on one @goodvibes_tee post", "status": "dropped", "note": "Superseded — @goodvibes_tee repurposed as ad-hosting account" },
+        { "id": "w2-6", "text": "Ifscarlet_KA introduction post", "status": "done", "note": "" }
+      ] },
+      { "id": "w3", "label": "Week 3", "theme": "Decision Points + Traffic Start", "items": [
+        { "id": "w3-0", "text": "IG test results reviewed, keep/abandon decision locked", "status": "done", "note": "Concluded Day 47 — retained as ad-hosting only; new GVT IG launched for organic" },
+        { "id": "w3-1", "text": "Samples quality-checked", "status": "open", "note": "" },
+        { "id": "w3-2", "text": "Real product photography session (non-AI)", "status": "dropped", "note": "Deliberate decision Day 47 — AI-generated photography adopted as standard" },
+        { "id": "w3-3", "text": "Listings updated with real photos", "status": "dropped", "note": "Superseded by AI photography decision" },
+        { "id": "w3-4", "text": "First Meta ad campaign live", "status": "carried", "note": "Test Week 1 (Day 50–56)" },
+        { "id": "w3-5", "text": "TikTok organic cadence 2–3x/week", "status": "carried", "note": "Second-half TikTok track" },
+        { "id": "w3-6", "text": "Catalog expansion to 20–25 listings", "status": "done", "note": "27 reached by Day 47" }
+      ] },
+      { "id": "w4", "label": "Week 4", "theme": "Soft Launch + First Sales", "items": [
+        { "id": "w4-0", "text": "Public launch communications across channels", "status": "carried", "note": "Second half" },
+        { "id": "w4-1", "text": "Ifscarlet_KA relaunch announcement story", "status": "carried", "note": "Hard-CTA post, Day 48–49 block" },
+        { "id": "w4-2", "text": "Email sent to existing GVT contacts", "status": "open", "note": "" },
+        { "id": "w4-3", "text": "Ad set optimization (kill/scale)", "status": "carried", "note": "Weekly checkpoint ritual" },
+        { "id": "w4-4", "text": "TikTok Shop live, top 10 SKUs listed", "status": "carried", "note": "" },
+        { "id": "w4-5", "text": "AI Agent #1 build researched/scoped", "status": "open", "note": "" }
+      ] },
+      { "id": "m2", "label": "Month 2 (first half)", "theme": "Scale What Works", "items": [
+        { "id": "m2-0", "text": "Catalog expansion to 50–60 SKUs", "status": "dropped", "note": "Catalog frozen Day 47 until Test Week 1 signal" },
+        { "id": "m2-1", "text": "Scale Meta ad spend on ROAS-positive campaigns", "status": "carried", "note": "Weekly checkpoints" },
+        { "id": "m2-2", "text": "TikTok Shop live, 5–10 creator outreach", "status": "carried", "note": "" },
+        { "id": "m2-3", "text": "Email automation (post-purchase, abandoned cart, second-purchase)", "status": "open", "note": "" },
+        { "id": "m2-4", "text": "AI Agent #1 built and deployed", "status": "open", "note": "" },
+        { "id": "m2-5", "text": "July 4 Americana capsule reactivated", "status": "dropped", "note": "Window passed" },
+        { "id": "m2-6", "text": "Ifscarlet_KA cadence scaled to 2x/post", "status": "done", "note": "3x/week maintained since Jul 10" }
+      ] },
+      { "id": "m3", "label": "Month 3 backlog", "theme": "Push to Target", "items": [
+        { "id": "m3-0", "text": "Catalog to 80–120 listings", "status": "open", "note": "Will be re-planned off checkpoint signal" },
+        { "id": "m3-1", "text": "Back-to-school push", "status": "open", "note": "" },
+        { "id": "m3-2", "text": "Amazon Merch on Demand live", "status": "open", "note": "" },
+        { "id": "m3-3", "text": "Audience broadening", "status": "open", "note": "Trigger: 50 total sales" },
+        { "id": "m3-4", "text": "AI Agent #2 built", "status": "open", "note": "" },
+        { "id": "m3-5", "text": "Public case-study content piece", "status": "open", "note": "" },
+        { "id": "m3-6", "text": "2–3 AI services prospect conversations", "status": "open", "note": "" }
+      ] }
+    ],
+    "roadmap": [
+      { "id": "w1", "label": "Week 1", "dates": "Jun 8–14", "theme": "Brand Foundation", "target": "Refreshed Shopify store live with new brand identity, 12–15 designs, samples ordered", "actual": "Delivered." },
+      { "id": "w2", "label": "Week 2", "dates": "Jun 15–21", "theme": "Channel Setup + IG Test", "target": "Shopify + Etsy live with 10+ listings, TikTok Shop applied, email capture active, IG test running, Ifscarlet_KA intro made", "actual": "Etsy and TikTok Shop deferred (Etsy later dropped entirely). Heavy Printify infrastructure crisis consumed most of week (product purge during dormancy, OAuth reauthorization issues). Shopify listings work continued into Week 3." },
+      { "id": "w3", "label": "Week 3", "dates": "Jun 22–28", "theme": "Decision Points + Traffic Start", "target": "Real product photos live, first paid ads running, TikTok cadence established, IG path decided, 20–25 listings", "actual": "Catalog reached 16 by end of week. AI-generated lifestyle hero images used instead of physical sample photography (later made the permanent standard). Meta ads and TikTok not started. Ifscarlet_KA intro reel posted Day 22." },
+      { "id": "w4", "label": "Week 4", "dates": "Jun 29–Jul 5", "theme": "Soft Launch + First Sales", "target": "Cumulative revenue $1,500–$3,500, TikTok Shop listings live, ads optimized, AI agent #1 scoped", "actual": "Revenue $0. Klaviyo set up ahead of schedule. Free shipping and checkout bugs fixed. Catalog 16→20." },
+      { "id": "m2", "label": "Month 2 (Day 29–46)", "dates": "Jul 6–23", "theme": "Scale What Works", "target": "Monthly revenue $3,000–$5,500, AI Agent #1 live, 50–60 SKUs, TikTok affiliate active, email automation deployed", "actual": "Catalog 20→27 (Breed Study + Confessions series). Popup A/B live, zero signups either variant. Content-style insight locked (motion/candid > static/posed). Revenue $0. Day 33 sprint review named the supply-side/demand-side imbalance; Day 47 restructure acted on it." }
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "gvt-command-center",
+  "private": true,
+  "description": "GVT Command Center — 90-day sprint operating dashboard for Good Vibes Tee",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}
